@@ -436,7 +436,7 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 				}while((next = next.nextSibling) && next.rowIndex != rowIndex);
 			}
 		},
-		renderArray: function(results, beforeNode, options){
+		renderArray: function(collection, beforeNode, options){
 			// summary:
 			//		This renders an array or collection of objects as rows in the grid, before the
 			//		given node. This will listen for changes in the collection if an observe method
@@ -448,12 +448,12 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 				rows, container, observerIndex;
 			
 			if(!beforeNode){
-				this._lastCollection = results;
+				this._lastCollection = collection;
 			}
-			if(results.observe){
-				// observe the results for changes
+			if(collection.observe){
+				// observe the collection for changes
 				self._numObservers++;
-				observerIndex = observers.push(results.observe(function(object, from, to){
+				observerIndex = observers.push(collection.observe(function(object, from, to){
 					var row, firstRow, nextNode, parentNode;
 					
 					function advanceNext() {
@@ -467,7 +467,7 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 						// check to make the sure the node is still there before we try to remove it, (in case it was moved to a different place in the DOM)
 						if(row.parentNode == container){
 							firstRow = row.nextSibling;
-							if(firstRow){ // it's possible for this to have been already removed if it is in overlapping query results
+							if(firstRow){ // it's possible for this to have been already removed if it is in overlapping collection
 								if(from != to){ // if from and to are identical, it is an in-place update and we don't want to alter the rowIndex at all
 									firstRow.rowIndex--; // adjust the rowIndex so adjustRowIndices has the right starting point
 								}
@@ -560,16 +560,22 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 				return (rows = resolvedRows);
 			}
 			
-			// now render the results
-			if(results.map){
-				rows = results.map(mapEach, console.error);
-				if(rows.then){
-					return rows.then(whenDone, whenError);
+			// now render the collection
+			// TODO: Implement collection.map ?
+			//if(collection.map){
+			if(collection.forEach){
+				// TODO: Fix this hack and implement dstore map
+				rows = [];
+				var data = collection.forEach(function(item){
+					rows.push(mapEach(item));
+				});
+				if(data && data.then){
+					return data.then(function() { whenDone(rows); }, whenError);
 				}
 			}else{
 				rows = [];
-				for(var i = 0, l = results.length; i < l; i++){
-					rows[i] = mapEach(results[i]);
+				for(var i = 0, l = collection.length; i < l; i++){
+					rows[i] = mapEach(collection[i]);
 				}
 			}
 			
