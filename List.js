@@ -868,13 +868,16 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 						property = property[0].attribute;
 					}
 					
-					this._lastCollection.sort(function(a,b){
+					// TODO: Branch here to support Array sorting again
+					this._lastCollection = this._lastCollection.sort(property, !!descending);
+
+					/*lastCollection.sort(function(a,b){
 						var aVal = a[property], bVal = b[property];
 						// fall back undefined values to "" for more consistent behavior
 						if(aVal === undefined){ aVal = ""; }
 						if(bVal === undefined){ bVal = ""; }
 						return aVal == bVal ? 0 : (aVal > bVal == !descending ? 1 : -1);
-					});
+					});*/
 				}
 				this.renderArray(this._lastCollection);
 			}
