@@ -60,6 +60,13 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 				this._columnsWithSet = {};
 			}));
 		},
+
+		postscript: function(){
+			this.inherited(arguments);
+			if(this.collection && !this._originalCollection){
+				this._originalCollection = this.collection;
+			}
+		},
 		
 		postCreate: function(){
 			this.inherited(arguments);
@@ -107,19 +114,37 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 			
 			this._updateNotifyHandle(collection);
 			
-			this.collection = collection;
+			this.collection = this._originalCollection = collection;
+
 			this.dirty = {}; // discard dirty map, as it applied to a previous collection
+
+			var sort = this.get('sort');
+			if(sort){
+				this.set('sort', sort);
+			}
 
 			// TODO: Apply sort criteria and refresh
 		},
 		
+		_originalCollection: null,
 		_setSort: function(property, descending){
 			// summary:
 			//		Sort the content
-			
-			// prevent default collectionless sort logic as long as we have a store
+
+			// prevent default collectionless sort logic as long as we have a collection
 			if(this.collection){ this._lastCollection = null; }
 			this.inherited(arguments);
+
+			if(this.collection){
+				var sort = this._sort,
+					collection = this._originalCollection;
+				for(var i = 0; i < sort.length; ++i){
+					collection = collection.sort(sort[i].attribute, sort[i].descending);
+				}
+
+				this.collection = collection;
+				this.refresh();
+			}
 		},
 		
 		_onNotify: function(object, existingId){
