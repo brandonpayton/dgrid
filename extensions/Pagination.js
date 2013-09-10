@@ -262,16 +262,17 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 			
 			this.inherited(arguments);
 			
-			if(!this.store){
-				console.warn("Pagination requires a store to operate.");
+			if(!this.collection){
+				console.warn("Pagination requires a collection to operate.");
 				return;
 			}
 			
 			// Reset to first page and return promise from gotoPage
 			return this.gotoPage(1).then(function(results){
 				// Emit on a separate turn to enable event to be used consistently for
-				// initial render, regardless of whether the backing store is async
+				// initial render, regardless of whether the backing collection is async
 				setTimeout(function() {
+					// TODO: Update this for collections
 					on.emit(self.domNode, "dgrid-refresh-complete", {
 						bubbles: true,
 						cancelable: false,
@@ -375,9 +376,9 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 				grid._isLoading = true;
 				
 				// Run new query and pass it into renderArray
-				results = grid.store.query(grid.query, options);
+				results = grid.collection.range(start, start + count);
 				
-				Deferred.when(grid.renderArray(results, null, options), function(rows){
+				Deferred.when(grid.renderArray(results), function(rows){
 					cleanupLoading(grid);
 					// Reset scroll Y-position now that new page is loaded.
 					grid.scrollTo({ y: 0 });

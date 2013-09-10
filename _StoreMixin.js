@@ -1,6 +1,6 @@
 define(["dojo/_base/kernel", "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/Deferred", "dojo/on", "dojo/aspect", "put-selector/put"],
 function(kernel, declare, lang, Deferred, listen, aspect, put){
-	// This module isolates the base logic required by store-aware list/grid
+	// This module isolates the base logic required by collection-aware list/grid
 	// components, e.g. OnDemandList/Grid and the Pagination extension.
 	
 	// Noop function, needed for _trackError when callback due to a bug in 1.8
@@ -30,28 +30,17 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 	}
 	
 	return declare(null, {
-		// store: Object
-		//		The object store (implementing the dojo/store API) from which data is
-		//		to be fetched.
-		store: null,
-		
-		// query: Object
-		//		Specifies query parameter(s) to pass to store.query calls.
-		query: null,
-		
-		// queryOptions: Object
-		//		Specifies additional query options to mix in when calling store.query;
-		//		sort, start, and count are already handled.
-		queryOptions: null,
+		// collection: Object
+		//		The collection object
+		collection: null,
 		
 		// getBeforePut: boolean
-		//		If true, a get request will be performed to the store before each put
+		//		If true, a get request will be performed to the collection before each put
 		//		as a baseline when saving; otherwise, existing row data will be used.
 		getBeforePut: true,
 		
 		// noDataMessage: String
-		//		Message to be displayed when no results exist for a query, whether at
-		//		the time of the initial query or upon subsequent observed changes.
+		//		Message to be displayed when a collection has no items
 		//		Defined by _StoreMixin, but to be implemented by subclasses.
 		noDataMessage: "",
 		
@@ -62,8 +51,6 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 		
 		constructor: function(){
 			// Create empty objects on each instance, not the prototype
-			this.query = {};
-			this.queryOptions = {};
 			this.dirty = {};
 			this._updating = {}; // Tracks rows that are mid-update
 			this._columnsWithSet = {};
@@ -76,8 +63,8 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 		
 		postCreate: function(){
 			this.inherited(arguments);
-			if(this.store){
-				this._updateNotifyHandle(this.store);
+			if(this.collection){
+				this._updateNotifyHandle(this.collection);
 			}
 		},
 		
@@ -90,96 +77,54 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 		
 		_configColumn: function(column){
 			// summary:
-			//		Implements extension point provided by Grid to store references to
+			//		Implements extension point provided by Grid to collection references to
 			//		any columns with `set` methods, for use during `save`.
 			if (column.set){
 				this._columnsWithSet[column.field] = column;
 			}
 		},
 		
-		_updateNotifyHandle: function(store){
+		_updateNotifyHandle: function(collection){
 			// summary:
-			//		Unhooks any previously-existing store.notify handle, and
-			//		hooks up a new one for the given store.
+			//		Unhooks any previously-existing collection.notify handle, and
+			//		hooks up a new one for the given collection.
 			
 			if(this._notifyHandle){
-				// Unhook notify handler from previous store
+				// Unhook notify handler from previous collection
 				this._notifyHandle.remove();
 				delete this._notifyHandle;
 			}
-			if(store && typeof store.notify === "function"){
-				this._notifyHandle = aspect.after(store, "notify",
+			if(collection && typeof collection.notify === "function"){
+				this._notifyHandle = aspect.after(collection, "notify",
 					lang.hitch(this, "_onNotify"), true);
 			}
 		},
 		
-		_setStore: function(store, query, queryOptions){
+		_setCollection: function(collection){
 			// summary:
-			//		Assigns a new store (and optionally query/queryOptions) to the list,
+			//		Assigns a new collection to the list,
 			//		and tells it to refresh.
 			
-			this._updateNotifyHandle(store);
+			this._updateNotifyHandle(collection);
 			
-			this.store = store;
-			this.dirty = {}; // discard dirty map, as it applied to a previous store
-			this.set("query", query, queryOptions);
-		},
-		_setQuery: function(query, queryOptions){
-			// summary:
-			//		Assigns a new query (and optionally queryOptions) to the list,
-			//		and tells it to refresh.
-			
-			var sort = queryOptions && queryOptions.sort;
-			
-			this.query = query !== undefined ? query : this.query;
-			this.queryOptions = queryOptions || this.queryOptions;
-			
-			// If we have new sort criteria, pass them through sort
-			// (which will update _sort and call refresh in itself).
-			// Otherwise, just refresh.
-			sort ? this.set("sort", sort) : this.refresh();
-		},
-		setStore: function(store, query, queryOptions){
-			kernel.deprecated("setStore(...)", 'use set("store", ...) instead', "dgrid 0.4");
-			this.set("store", store, query, queryOptions);
-		},
-		setQuery: function(query, queryOptions){
-			kernel.deprecated("setQuery(...)", 'use set("query", ...) instead', "dgrid 0.4");
-			this.set("query", query, queryOptions);
-		},
-		
-		_getQueryOptions: function(){
-			// summary:
-			//		Get a fresh queryOptions object, also including the current sort
-			var options = lang.delegate(this.queryOptions, {});
-			if(this._sort.length){
-				// Prevents SimpleQueryEngine from doing unnecessary "null" sorts (which can
-				// change the ordering in browsers that don't use a stable sort algorithm, eg Chrome)
-				options.sort = this._sort;
-			}
-			return options;
-		},
-		_getQuery: function(){
-			// summary:
-			//		Implemented consistent with _getQueryOptions so that if query is
-			//		an object, this returns a protected (delegated) object instead of
-			//		the original.
-			var q = this.query;
-			return typeof q == "object" && q != null ? lang.delegate(q, {}) : q;
+			this.collection = collection;
+			this.dirty = {}; // discard dirty map, as it applied to a previous collection
+
+			// TODO: Apply sort criteria and refresh
 		},
 		
 		_setSort: function(property, descending){
 			// summary:
 			//		Sort the content
 			
-			// prevent default storeless sort logic as long as we have a store
-			if(this.store){ this._lastCollection = null; }
+			// prevent default collectionless sort logic as long as we have a store
+			if(this.collection){ this._lastCollection = null; }
 			this.inherited(arguments);
 		},
 		
 		_onNotify: function(object, existingId){
 			// summary:
-			//		Method called when the store's notify method is called.
+			//		Method called when the collection's notify method is called.
 			
 			// Call inherited in case anything was mixed in earlier
 			this.inherited(arguments);
@@ -192,9 +137,9 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 		},
 		
 		insertRow: function(object, parent, beforeNode, i, options){
-			var store = this.store,
+			var collection = this.collection,
 				dirty = this.dirty,
-				id = store && store.getIdentity(object),
+				id = collection && collection.getIdentity(object),
 				dirtyObj;
 			
 			if(id in dirty && !(id in this._updating)){ dirtyObj = dirty[id]; }
@@ -223,9 +168,9 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 		},
 		
 		save: function() {
-			// Keep track of the store and puts
+			// Keep track of the collection and puts
 			var self = this,
-				store = this.store,
+				collection = this.collection,
 				dirty = this.dirty,
 				dfd = new Deferred(), promise = dfd.promise,
 				getFunc = function(id){
@@ -233,7 +178,7 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 					// with the id variable closured
 					var data;
 					return (self.getBeforePut || !(data = self.row(id).data)) ?
-						function(){ return store.get(id); } :
+						function(){ return collection.get(id); } :
 						function(){ return data; };
 				};
 			
@@ -264,8 +209,8 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 					}
 					
 					updating[id] = true;
-					// Put it in the store, returning the result/promise
-					return Deferred.when(store.put(object), function() {
+					// Put it in the collection, returning the result/promise
+					return Deferred.when(collection.put(object), function() {
 						// Clear the item now that it's been confirmed updated
 						delete dirty[id];
 						delete updating[id];
@@ -279,7 +224,7 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 				var put = putter(id, dirty[id]);
 				
 				// Add this item onto the promise chain,
-				// getting the item from the store first if desired.
+				// getting the item from the collection first if desired.
 				promise = promise.then(getFunc(id)).then(put);
 			}
 			
@@ -301,7 +246,7 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 			// summary:
 			//		Utility function to handle emitting of error events.
 			// func: Function|String
-			//		A function which performs some store operation, or a String identifying
+			//		A function which performs some collection operation, or a String identifying
 			//		a function to be invoked (sans arguments) hitched against the instance.
 			//		If sync, it can return a value, but may throw an error on failure.
 			//		If async, it should return a promise, which would fire the error
