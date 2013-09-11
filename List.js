@@ -372,7 +372,7 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 			// remove any store observers
 			for(i = 0;i < observers.length; i++){
 				var observer = observers[i];
-				observer && observer.cancel();
+				observer && observer.remove();
 			}
 			this.observers = [];
 			this._numObservers = 0;
@@ -537,7 +537,7 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 			}
 			function whenError(error){
 				if(typeof observerIndex !== "undefined"){
-					observers[observerIndex].cancel();
+					observers[observerIndex].remove();
 					observers[observerIndex] = 0;
 					self._numObservers--;
 				}
