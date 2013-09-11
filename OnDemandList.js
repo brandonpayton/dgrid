@@ -239,13 +239,14 @@ return declare([List, _StoreMixin], {
 		if(keep){ this._previousScrollPosition = this.getScrollPosition(); }
 		
 		this.inherited(arguments);
-		if(this.store){
+		if(this.collection){
 			// render the query
 			dfd = this._refreshDeferred = new Deferred();
 			
 			// renderQuery calls _trackError internally
 			results = self.renderQuery(function(queryOptions){
-				return self.store.query(self.query, queryOptions);
+				return self.collection.range(queryOptions.start, queryOptions.start + queryOptions.count);
+				//return self.store.query(self.query, queryOptions);
 			});
 			if(typeof results === "undefined"){
 				// Synchronous error occurred; reject the refresh promise.
@@ -258,7 +259,7 @@ return declare([List, _StoreMixin], {
 			// the event will be emitted with both under respective properties.
 			return dfd.then(function(results){
 				// Emit on a separate turn to enable event to be used consistently for
-				// initial render, regardless of whether the backing store is async
+				// initial render, regardless of whether the backing collection is async
 				setTimeout(function() {
 					listen.emit(self.domNode, "dgrid-refresh-complete", {
 						bubbles: true,
