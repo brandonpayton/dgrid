@@ -601,7 +601,7 @@ return declare([List, _StoreMixin], {
 				var observers = this.observers;
 				var observer = observers[thisIndex];
 				if(observer){
-					observer.cancel();
+					observer.remove();
 					this._numObservers--;
 					observers[thisIndex] = 0; // remove it so we don't call cancel twice
 				}
