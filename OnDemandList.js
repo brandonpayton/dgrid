@@ -61,7 +61,19 @@ return declare([List, _StoreMixin], {
 	keepScrollPosition: false,
 	
 	rowHeight: 22,
-	
+
+	observedStore: null,
+
+	_setCollection: function(){
+		this.inherited(arguments);
+		this.refresh();
+	},
+
+	buildRendering: function(){
+		this.inherited(arguments);
+		this.rows = [];
+	},
+
 	postCreate: function(){
 		this.inherited(arguments);
 		var self = this;
@@ -158,6 +170,11 @@ return declare([List, _StoreMixin], {
 		
 		// Render the result set
 		Deferred.when(self.renderArray(results, preloadNode, options), function(trs){
+			var rows = self.rows;
+			for (var i = 0; i < trs.length; ++i){
+				rows[options.start + i] = trs[i];
+			}
+
 			var total = typeof results.total === "undefined" ?
 				results.length : results.total;
 			return Deferred.when(total, function(total){
@@ -218,6 +235,20 @@ return declare([List, _StoreMixin], {
 		
 		return results;
 	},
+
+	cleanup: function(){
+		console.log("cleanup");
+		this.inherited(arguments);
+
+		if(this.observedStore){
+			this.observedStore.remove();
+			this.observedStore = null;
+		}
+
+		this.rows && (this.rows.length = 0);
+
+		this.preload = null;
+	},
 	
 	refresh: function(options){
 		// summary:
@@ -227,6 +258,7 @@ return declare([List, _StoreMixin], {
 		//		* keepScrollPosition: like the keepScrollPosition instance property;
 		//			specifying it in the options here will override the instance
 		//			property's value for this specific refresh call only.
+		console.log("refresh");
 		
 		var self = this,
 			keep = (options && options.keepScrollPosition),
@@ -239,14 +271,45 @@ return declare([List, _StoreMixin], {
 		if(keep){ this._previousScrollPosition = this.getScrollPosition(); }
 		
 		this.inherited(arguments);
-		if(this.collection){
+		if(this.sortedCollection){
 			// render the query
 			dfd = this._refreshDeferred = new Deferred();
+
+			console.log("calling observe");
+			this.observedStore = this.sortedCollection.observe(function(targetIndex, removalCount, object){
+				if(removalCount > 0){
+					// remove from old slot
+					var removedRows = self.rows.splice(targetIndex, removalCount);
+					for(var i = 0; i < removedRows.length; ++i){
+						var row = removedRows[i];
+
+						// check to make the sure the node is still there before we try to remove it, (in case it was moved to a different place in the DOM)
+						if(true){//row.parentNode == container){
+							firstRow = row.nextSibling;
+							if(firstRow){ // it's possible for this to have been already removed if it is in overlapping query results
+								//if(from != to){ // if from and to are identical, it is an in-place update and we don't want to alter the rowIndex at all
+									firstRow.rowIndex--; // adjust the rowIndex so adjustRowIndices has the right starting point
+								//}
+							}
+							self.removeRow(row); // now remove
+						}
+					}
+					// the removal of rows could cause us to need to page in more items
+					if(self._processScroll){
+						self._processScroll();
+					}
+				}
+
+				if(object){
+					var parentNode = self.contentNode;
+					var nextNode = self.rows[targetIndex] || null;
+					self.rows.splice(targetIndex, 0, self.newRow(object, parentNode, nextNode, targetIndex, {}));
+				}
+			});
 			
 			// renderQuery calls _trackError internally
 			results = self.renderQuery(function(queryOptions){
-				return self.collection.range(queryOptions.start, queryOptions.start + queryOptions.count);
-				//return self.store.query(self.query, queryOptions);
+				return self.observedStore.range(queryOptions.start, queryOptions.start + queryOptions.count);
 			});
 			if(typeof results === "undefined"){
 				// Synchronous error occurred; reject the refresh promise.
@@ -516,8 +579,13 @@ return declare([List, _StoreMixin], {
 
 				// Isolate the variables in case we make multiple requests
 				// (which can happen if we need to render on both sides of an island of already-rendered rows)
+				var allRows = this.rows;
 				(function(loadingNode, scrollNode, below, keepScrollTo, results){
 					lastRows = Deferred.when(grid.renderArray(results, loadingNode, options), function(rows){
+						for (var i = 0; i < rows.length; ++i){
+							allRows[options.start + i] = rows[i];
+						}
+
 						lastResults = results;
 						
 						// can remove the loading node now
