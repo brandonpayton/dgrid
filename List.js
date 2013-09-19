@@ -428,13 +428,11 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 		renderArray: function(collection, beforeNode, options){
 			// summary:
 			//		This renders an array or collection of objects as rows in the grid, before the
-			//		given node. This will listen for changes in the collection if an observe method
-			//		is available (as it should be if it comes from an Observable data store).
+			//		given node. 
 			options = options || {};
 			var self = this,
 				start = options.start || 0,
-				observers = this.observers,
-				rows, container, observerIndex;
+				rows, container;
 			
 			if(!beforeNode){
 				this._lastCollection = collection;
@@ -445,15 +443,9 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 			
 			function mapEach(object){
 				lastRow = self.insertRow(object, rowsFragment, null, start++, options);
-				lastRow.observerIndex = observerIndex;
 				return lastRow;
 			}
 			function whenError(error){
-				if(typeof observerIndex !== "undefined"){
-					observers[observerIndex].remove();
-					observers[observerIndex] = 0;
-					self._numObservers--;
-				}
 				if(error){
 					throw error;
 				}
@@ -465,10 +457,6 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 					container.insertBefore(rowsFragment, beforeNode || null);
 					lastRow = resolvedRows[resolvedRows.length - 1];
 					lastRow && self.adjustRowIndices(lastRow);
-				}else if(observers[observerIndex]){
-					// Remove the observer and don't bother inserting;
-					// rows are already out of view or there were none to track
-					whenError();
 				}
 				return (rows = resolvedRows);
 			}
@@ -495,6 +483,7 @@ function(kernel, declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 			return whenDone(rows);
 		},
 
+		// TODO: Move this someplace else that is responsible for observing stores
 		_onNotification: function(rows, object, from, to){
 			// summary:
 			//		Protected method called whenever a store notification is observed.
