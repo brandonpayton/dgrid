@@ -114,37 +114,37 @@ function(kernel, declare, lang, Deferred, listen, aspect, put){
 			
 			this._updateNotifyHandle(collection);
 			
-			this.collection = this._originalCollection = collection;
+			this.collection = collection;
 
 			this.dirty = {}; // discard dirty map, as it applied to a previous collection
 
-			var sort = this.get('sort');
-			if(sort){
-				this.set('sort', sort);
-			}
-
-			// TODO: Apply sort criteria and refresh
+			this._updateSortedCollection();
 		},
 		
-		_originalCollection: null,
+		sortedCollection: null,
 		_setSort: function(property, descending){
 			// summary:
 			//		Sort the content
 
 			// prevent default collectionless sort logic as long as we have a collection
 			if(this.collection){ this._lastCollection = null; }
+
 			this.inherited(arguments);
+			this._updateSortedCollection();
+		},
 
-			if(this.collection){
-				var sort = this._sort,
-					collection = this._originalCollection;
-				for(var i = 0; i < sort.length; ++i){
-					collection = collection.sort(sort[i].attribute, sort[i].descending);
-				}
+		_updateSortedCollection: function(){
+			// TODO: Document this
+			console.log("updateSortedCollection")
 
-				this.collection = collection;
-				this.refresh();
+			var sortedCollection = this.collection,
+				sort = this._sort;
+			for(var i = 0; i < sort.length; ++i){
+				sortedCollection = sortedCollection.sort(sort[i].attribute, sort[i].descending);
 			}
+			this.sortedCollection = sortedCollection;
+
+			this.refresh();
 		},
 		
 		_onNotify: function(object, existingId){
