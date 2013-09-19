@@ -2,33 +2,10 @@ define(["../_StoreMixin", "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/D
 	"dojo/on", "dojo/query", "dojo/string", "dojo/has", "put-selector/put", "dojo/i18n!./nls/pagination",
 	"dojo/_base/sniff", "xstyle/css!../css/extensions/Pagination.css"],
 function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n){
-	function cleanupContent(grid){
-		// Remove any currently-rendered rows, or noDataMessage
-		if(grid.noDataNode){
-			put(grid.noDataNode, "!");
-			delete grid.noDataNode;
-		}else{
-			grid.cleanup();
-		}
-		grid.contentNode.innerHTML = "";
-	}
 	function cleanupLoading(grid){
 		if(grid.loadingNode){
 			put(grid.loadingNode, "!");
 			delete grid.loadingNode;
-		}else if(grid._oldPageNodes){
-			// If cleaning up after a load w/ showLoadingMessage: false,
-			// be careful to only clean up rows from the old page, not the new one
-			for(var id in grid._oldPageNodes){
-				grid.removeRow(grid._oldPageNodes[id]);
-			}
-			delete grid._oldPageNodes;
-			// Also remove the observer from the previous page, if there is one
-			if(grid._oldPageObserver){
-				grid._oldPageObserver.cancel();
-				grid._numObservers--;
-				delete grid._oldPageObserver;
-			}
 		}
 		delete grid._isLoading;
 	}
@@ -74,6 +51,9 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 		showFooter: true,
 		_currentPage: 1,
 		_total: 0,
+
+		observedCollection: null,
+		rows: null,
 		
 		buildRendering: function(){
 			this.inherited(arguments);
@@ -173,6 +153,8 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 					grid.gotoPage(+this.innerHTML, true); // the innerHTML has the page number
 				}
 			}));
+
+			this.rows = [];
 		},
 		
 		destroy: function(){
@@ -180,6 +162,14 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 			if(this._pagingTextBoxHandle){
 				this._pagingTextBoxHandle.remove();
 			}
+		},
+
+		cleanup: function(){
+			this.observedCollection && this.observedCollection.remove();
+			this.inherited(arguments);
+			this.rows.length = 0;
+
+			this.contentNode.innerHTML = "";
 		},
 		
 		_updateNavigation: function(focusLink){
@@ -285,13 +275,6 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 			});
 		},
 		
-		_onNotification: function(rows){
-			if(rows.length !== this._rowsOnPage){
-				// Refresh the current page to maintain correct number of rows on page
-				this.gotoPage(this._currentPage);
-			}
-		},
-		
 		renderArray: function(results, beforeNode){
 			var grid = this,
 				rows = this.inherited(arguments);
@@ -356,29 +339,50 @@ function(_StoreMixin, declare, lang, Deferred, on, query, string, has, put, i18n
 					i,
 					len;
 				
+				grid.cleanup();
 				if(grid.showLoadingMessage){
-					cleanupContent(grid);
 					loadingNode = grid.loadingNode = put(contentNode, "div.dgrid-loading");
 					loadingNode.innerHTML = grid.loadingMessage;
-				}else{
-					// Reference nodes to be cleared later, rather than now;
-					// iterate manually since IE < 9 doesn't like slicing HTMLCollections
-					grid._oldPageNodes = oldNodes = {};
-					children = contentNode.children;
-					for(i = 0, len = children.length; i < len; i++){
-						oldNodes[children[i].id] = children[i];
-					}
-					// Also reference the current page's observer (if any)
-					grid._oldPageObserver = grid.observers.pop();
 				}
 				
 				// set flag to deactivate pagination event handlers until loaded
 				grid._isLoading = true;
 				
 				// Run new query and pass it into renderArray
-				results = grid.collection.range(start, start + count);
+				// TODO: This is similar to the OnDemandGrid listener. How should we share this code? Perhaps by implementing _onNotification
+				var self = grid;
+				var results = grid.observedCollection = grid.sortedCollection.range(start, start + count).observe(function(targetIndex, removalCount, object){
+					if(removalCount > 0){
+						// remove from old slot
+						var removedRows = self.rows.splice(targetIndex, removalCount);
+						for(var i = 0; i < removedRows.length; ++i){
+							var row = removedRows[i];
+
+							// check to make the sure the node is still there before we try to remove it, (in case it was moved to a different place in the DOM)
+							if(true){//row.parentNode == container){
+								firstRow = row.nextSibling;
+								if(firstRow){ // it's possible for this to have been already removed if it is in overlapping query results
+									//if(from != to){ // if from and to are identical, it is an in-place update and we don't want to alter the rowIndex at all
+										firstRow.rowIndex--; // adjust the rowIndex so adjustRowIndices has the right starting point
+									//}
+								}
+								self.removeRow(row); // now remove
+							}
+						}
+					}
+
+					if(object){
+						var parentNode = self.contentNode;
+						var nextNode = self.rows[targetIndex] || null;
+						self.rows.splice(targetIndex, 0, self.newRow(object, parentNode, nextNode, targetIndex, {}));
+					}
+				});
 				
 				Deferred.when(grid.renderArray(results), function(rows){
+					for(var i = 0; i < rows.length; ++i){
+						self.rows[i] = rows[i];
+					}
+
 					cleanupLoading(grid);
 					// Reset scroll Y-position now that new page is loaded.
 					grid.scrollTo({ y: 0 });
