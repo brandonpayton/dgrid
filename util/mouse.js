@@ -9,7 +9,7 @@ define(["dojo/on", "dojo/dom", "dojo/query"], function(on, dom){
 		//		Query selector for event delegation.
 		// type: String
 		//		Event to delegate on (mouseover or mouseout).
-		
+
 		return function(node, listener){
 			return on(node, selector + ":" + type, function(evt){
 				if(!dom.isDescendant(evt.relatedTarget, this)){
@@ -18,7 +18,7 @@ define(["dojo/on", "dojo/dom", "dojo/query"], function(on, dom){
 			});
 		};
 	}
-	
+
 	return {
 		// Provide enter/leave events for rows, cells, and header cells.
 		// (Header row is trivial since there's only one.)
@@ -28,7 +28,7 @@ define(["dojo/on", "dojo/dom", "dojo/query"], function(on, dom){
 		leaveRow: handler(".dgrid-content .dgrid-row", "mouseout"),
 		leaveCell: handler(".dgrid-content .dgrid-cell", "mouseout"),
 		leaveHeaderCell: handler(".dgrid-header .dgrid-cell", "mouseout"),
-		
+
 		// Also expose the handler function, so people can do what they want.
 		createDelegatingHandler: handler
 	};

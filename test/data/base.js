@@ -16,7 +16,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 		label: 'id',
 		items: []
 	};
-	data_list = [ 
+	data_list = [
 		{ col1: "normal", col2: false, col3: "new", col4: 'But are not followed by two hexadecimal', col5: 29.91, col6: 10, col7: false },
 		{ col1: "important", col2: false, col3: "new", col4: 'Because a % sign always indicates', col5: 9.33, col6: -5, col7: false },
 		{ col1: "important", col2: false, col3: "read", col4: 'Signs can be selectively', col5: 19.34, col6: 0, col7: true },
@@ -46,7 +46,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 		promisedResults.total = results.total;
 		return promisedResults;
 	}
-	
+
 	testAsyncStore = Observable(new Memory({
 		data: data,
 		query: asyncQuery
@@ -208,7 +208,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 			{ id: 'AR', name:'Argentina', type:'country', population:'40 million', parent: 'SA' },
 				{ id: 'BuenosAires', name:'Buenos Aires', type:'city', parent: 'AR' }
 	];
-	
+
 	// global var testSyncCountryStore
 	testSyncCountryStore = Observable(new Memory({
 		data: testCountryData,
@@ -226,7 +226,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 		query: function (query, options){
 			query = query || {};
 			options = options || {};
-			
+
 			if (!query.parent && !options.deep) {
 				// Default to a single-level query for root items (no parent)
 				query.parent = undefined;
@@ -234,10 +234,10 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 			return this.queryEngine(query, options)(this.data);
 		}
 	}));
-	
+
 	// global var testCountryStore
 	testCountryStore = new DeferredWrapper(testSyncCountryStore);
-	
+
 	var testTopHeavyData = arrayUtil.map(testStateStore.data, function (state) {
 		return {
 			abbreviation: state.abbreviation,
@@ -248,7 +248,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 			}]
 		};
 	});
-	
+
 	// global var testTopHeavyStore
 	// Store with few children and many parents to exhibit any
 	// issues due to bugs related to total disregarding level
@@ -267,7 +267,7 @@ function(lang, arrayUtil, Deferred, Memory, Observable, QueryResults, DeferredWr
 		// Calculates proper value of order for an item to be placed before another
 		var afterOrder, beforeOrder = 0;
 		if (!orderField) { orderField = "order"; }
-		
+
 		if(before){
 			// calculate midpoint between two items' orders to fit this one
 			afterOrder = before[orderField];

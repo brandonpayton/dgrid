@@ -2,7 +2,7 @@ define([
 	"intern!tdd",
 	"intern/chai!assert",
 	"dgrid/List",
-	"dgrid/Grid", 
+	"dgrid/Grid",
 	"dgrid/GridFromHtml",
 	"dojo/_base/array",
 	"dojo/parser",
@@ -28,12 +28,12 @@ define([
 				listDOM = window.listDOM = new List({
 					renderRow: function(item){ return put("div", item.name); }
 				}, domConstruct.create("div", {"class": "dom"}));
-			
+
 			// Check the classes on each List.domNode
 			assert.ok(domClass.contains(listC.domNode, "c"));
 			assert.ok(domClass.contains(listCN.domNode, "cn"));
 			assert.ok(domClass.contains(listDOM.domNode, "dom"));
-			
+
 			// Destroy the lists after performing the tests
 			listC.destroy();
 			listCN.destroy();
@@ -58,12 +58,12 @@ define([
 				gridDOM = window.gridDOM = new Grid({
 					columns: columns
 				}, domConstruct.create("div", { "class": "dom" }));
-			
+
 			// Check the classes on each List.domNode
 			assert.ok(domClass.contains(gridC.domNode, "c"));
 			assert.ok(domClass.contains(gridCN.domNode, "cn"));
 			assert.ok(domClass.contains(gridDOM.domNode, "dom"));
-			
+
 			// Destroy the grids after performing the tests
 			gridC.destroy();
 			gridCN.destroy();
@@ -75,14 +75,14 @@ define([
 			var node = domConstruct.create("div", {
 				innerHTML: gridTemplate
 			});
-			
+
 			// Expose GridFromHtml via a global namespace for parser to use
 			window.dgrid = { GridFromHtml: GridFromHtml };
 			parser.parse(node);
-			
+
 			// Make sure the expected class exists on the parsed instance
 			assert.ok(domClass.contains(gridDecl.domNode, "dom"));
-			
+
 			// Destroy the grid after performing the test
 			gridDecl.destroy();
 		});

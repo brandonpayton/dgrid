@@ -27,7 +27,7 @@ define(["dojo/_base/lang", "dojo/_base/Deferred", "dojo/store/util/QueryResults"
 					resolveTotal();
 					resolveResults();
 				}
-					
+
 				return QueryResults(resultsDeferred);
 			}
 		});

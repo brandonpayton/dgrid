@@ -67,7 +67,7 @@ define([
 					baz: "9px"
 				},
 				cls;
-			
+
 			function check(){
 				// Test that all expected styles hold
 				var cls;
@@ -78,24 +78,24 @@ define([
 				}
 				testDiv.className = "";
 			}
-			
+
 			// Create rules and maintain references to returned objects
 			for(cls in expected){
 				rules.push(miscUtil.addCssRule("." + cls, "font-size: " + expected[cls] + ";"));
 			}
-			
+
 			// Do initial check, then remove rules one by one, out of order,
 			// updating the hash and checking each time along the way
 			check();
-			
+
 			rules[2].remove();
 			expected.baz = origStyle;
 			check();
-			
+
 			rules[0].remove();
 			expected.foo = origStyle;
 			check();
-			
+
 			rules[1].remove();
 			expected.bar = origStyle;
 			check();
@@ -105,7 +105,7 @@ define([
 			var values = ["7px", "8px"],
 				origValues,
 				grid;
-			
+
 			function createGrid(cleanAddedRules){
 				grid = new Grid({
 					id: "my.grid", // test escaping of CSS identifiers from methods
@@ -119,23 +119,23 @@ define([
 				document.body.appendChild(grid.domNode);
 				grid.startup();
 			}
-			
+
 			function addRules(){
 				var rules = [];
-				
+
 				rules.push(grid.addCssRule(".field-value", "font-size: " + values[0] + ";"));
 				rules.push(grid.styleColumn("name", "font-size: " + values[1] + ";"));
-				
+
 				return rules;
 			}
-			
+
 			function getStyles(){
 				return [
 					domStyle.getComputedStyle(query(".field-value", grid.domNode)[0]).fontSize,
 					domStyle.getComputedStyle(query(".dgrid-column-name", grid.domNode)[0]).fontSize
 				];
 			}
-			
+
 			function checkRules(expected){
 				var actual = getStyles(grid);
 				assert.strictEqual(expected[0], actual[0],
@@ -143,7 +143,7 @@ define([
 				assert.strictEqual(expected[1], actual[1],
 					"Style modified via styleColumn has expected value");
 			}
-			
+
 			// Create grid for the first time
 			createGrid(true);
 			// Collect original style values for later cleanup check
@@ -153,7 +153,7 @@ define([
 			checkRules(values);
 			// Destroy the grid, which should remove the style rules
 			grid.destroy();
-			
+
 			// Create grid for the second time, with cleanAddedRules: false
 			createGrid(false);
 			// Before adding styles, make sure the ones from last time were removed
@@ -164,7 +164,7 @@ define([
 			checkRules(values);
 			// Destroy the grid, which should *not* remove the style rules
 			grid.destroy();
-			
+
 			// Create grid for the third time
 			createGrid(true);
 			// Check that styles from last time still exist

@@ -8,7 +8,7 @@ define([
 	"dijit/form/TextBox",
 	"dgrid/test/data/base"
 ], function (test, assert, List, Grid, editor, registry, TextBox) {
-	
+
 	test.suite("createDestroy", function(){
 		// Tests
 		test.test("no params list", function(){
@@ -19,7 +19,7 @@ define([
 			list.renderArray([ "foo", "bar", "baz" ]);
 
 			// check number of children
-			assert.strictEqual(list.contentNode.children.length, 3, 
+			assert.strictEqual(list.contentNode.children.length, 3,
 				"List's contentNode has expected number of children after renderArray");
 
 			// kill it & make sure we are all cleaned up

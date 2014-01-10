@@ -8,11 +8,11 @@ function(has){
 	// * string indicates the vendor prefix under which the feature is supported
 
 	var cssPrefixes = ["ms", "O", "Moz", "Webkit"];
-	
+
 	has.add("css-transitions", function(global, doc, element){
 		var style = element.style,
 			i;
-		
+
 		if(style.transitionProperty !== undefined){ // standard, no vendor prefix
 			return true;
 		}
@@ -21,10 +21,10 @@ function(has){
 				return cssPrefixes[i]; // vendor-specific css property prefix
 			}
 		}
-		
+
 		return false; // otherwise, not supported
 	});
-	
+
 	has.add("transitionend", function(){
 		// Infer transitionend event name based on CSS transitions has-feature.
 		var tpfx = has("css-transitions");
@@ -37,7 +37,7 @@ function(has){
 			Webkit: "webkitTransitionEnd"
 		}[tpfx];
 	});
-	
+
 	has.add("css-transforms", function(global, doc, element){
 		var style = element.style, i;
 		if (style.transformProperty !== undefined) {
@@ -48,20 +48,20 @@ function(has){
 				return cssPrefixes[i];
 			}
 		}
-		
+
 		return false; // otherwise, not supported
 	});
-	
+
 	has.add("css-transforms3d", function(global, doc, element){
 		var left,
 			result = false;
-		
+
 		// Apply csstransforms3d class to test transform-3d media queries.
 		element.className = "has-csstransforms3d";
 		// Add to body to allow measurement.
 		document.body.appendChild(element);
 		left = element.offsetLeft;
-		
+
 		if (left === 9) {
 			result = true; // standard, no prefix
 		} else if (left > 9){
@@ -70,9 +70,9 @@ function(has){
 		}
 		document.body.removeChild(element);
 		element.className = "";
-		
+
 		return result;
 	});
-	
+
 	return has;
 });

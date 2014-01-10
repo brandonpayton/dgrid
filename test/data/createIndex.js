@@ -12,11 +12,11 @@ function populateList(subdir) {
 	// Populates the list variable with the names of all files under the given
 	// path, including subdirectories.  This function is called recursively;
 	// the initial call should not specify an argument.
-	
+
 	var dir = path.join(testDir, subdir),
 		files = fs.readdirSync(dir),
 		i, len, file, match;
-	
+
 	for (i = 0, len = files.length; i < len; i++) {
 		file = files[i];
 		if (path.extname(file) === ".html" && file !== "index.html" && !internDirRx.test(dir)) {
