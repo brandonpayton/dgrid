@@ -78,10 +78,6 @@ function tree(column){
 			colSelector = ".dgrid-content .dgrid-column-" + column.id,
 			listeners = []; // to be removed when this column is destroyed
 
-		// Turn off automatic cleanup of empty observers, to prevent confusion
-		// due to observers operating at multiple hierarchy levels.
-		grid.cleanEmptyObservers = false;
-		
 		if(!grid.store){
 			throw new Error("dgrid tree column plugin requires a store to operate.");
 		}
@@ -138,6 +134,11 @@ function tree(column){
 		listeners.push(aspect.before(grid, "removeRow", function(rowElement, justCleanup){
 			var connected = rowElement.connected;
 			if(connected){
+
+				// TODO: Consider creating symmetrical _populateChildRows and _removeChildRows methods for this.
+				connected._observerHandle && connected._observerHandle.remove();
+				delete connected._observerHandle;
+
 				// if it has a connected expando node, we process the children
 				querySelector(">.dgrid-row", connected).forEach(function(element){
 					grid.removeRow(element, true);
@@ -212,7 +213,13 @@ function tree(column){
 					container = rowElement.connected = put('div.dgrid-tree-container');//put(rowElement, '+...
 					preloadNode = target.preloadNode = put(rowElement, '+', container, 'div.dgrid-preload');
 					var query = function(options){
-						return grid.store.getChildren(row.data, options);
+						var childCollection = grid.store.getChildren(row.data, options);
+						if(childCollection.track){
+							options.rows = [];
+							childCollection = childCollection.track();
+							container._observerHandle = grid._observeCollection(childCollection, container, options.rows);
+						}
+						return childCollection;
 					};
 					if(column.allowDuplicates){
 						// If allowDuplicates is specified, include parentId in options
