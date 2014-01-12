@@ -800,6 +800,15 @@ function(declare, listen, has, miscUtil, TouchScroll, hasClass, put){
 			put(this.footerNode, (show ? "!" : ".") + "dgrid-footer-hidden");
 			
 			this.resize(); // to account for (dis)appearance of footer
-		}
+		},
+
+		_getFirstRowSibling: function(container){
+			// summary:
+			//		Returns the DOM node that a new row should be inserted before
+			//		when there are no other rows in the current result set.
+			//		In the case of OnDemandList, this will always be the last child
+			//		of the container (which will be a trailing preload node).
+			return container.lastChild;
+		},
 	});
 });
