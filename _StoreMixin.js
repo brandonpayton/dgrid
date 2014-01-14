@@ -64,8 +64,6 @@ function(declare, lang, Deferred, listen, aspect, put){
 		
 		constructor: function(){
 			// Create empty objects on each instance, not the prototype
-			this.query = {};
-			this.queryOptions = {};
 			this.dirty = {};
 			this._updating = {}; // Tracks rows that are mid-update
 			this._columnsWithSet = {};

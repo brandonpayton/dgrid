@@ -144,7 +144,7 @@ return declare([List, _StoreMixin], {
 
 		// Establish query options, mixing in our own.
 		// (The getter returns a delegated object, so simply using mixin is safe.)
-		options = lang.mixin(this.get("queryOptions"), options, 
+		options = lang.mixin(options,
 			{ start: 0, count: this.minRowsPerPage },
 			"level" in query ? { queryLevel: query.level } : null);
 		

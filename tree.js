@@ -203,9 +203,7 @@ function tree(column){
 					container,
 					containerStyle,
 					scrollHeight,
-					options = {
-						originalQuery: this.query
-					};
+					options = {};
 				
 				if(!preloadNode){
 					// if the children have not been created, create a container, a preload node and do the 

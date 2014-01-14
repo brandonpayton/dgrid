@@ -402,11 +402,10 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 			var result = this._trackError(function(){
 				var count = grid.rowsPerPage,
 					start = (page - 1) * count,
-					options = lang.mixin(grid.get("queryOptions"), {
+					options = {
 						start: start,
 						count: count
-						// current sort is also included by get("queryOptions")
-					}),
+					},
 					results,
 					contentNode = grid.contentNode,
 					loadingNode,
