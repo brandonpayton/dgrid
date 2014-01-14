@@ -23,12 +23,6 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 				grid.removeRow(grid._oldPageNodes[id]);
 			}
 			delete grid._oldPageNodes;
-			// Also remove the observer from the previous page, if there is one
-			if(grid._oldPageObserver){
-				grid._oldPageObserver.cancel();
-				grid._numObservers--;
-				delete grid._oldPageObserver;
-			}
 		}
 		delete grid._isLoading;
 	}
@@ -426,8 +420,6 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 					for(i = 0, len = children.length; i < len; i++){
 						oldNodes[children[i].id] = children[i];
 					}
-					// Also reference the current page's observer (if any)
-					grid._oldPageObserver = grid._observers.pop();
 				}
 
 				// set flag to deactivate pagination event handlers until loaded
