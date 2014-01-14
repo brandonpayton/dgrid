@@ -346,7 +346,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 			var self = this, row;
 
 			var handles = [
-				collection.on("trackedremove, trackedupdate", function(event){
+				collection.on("remove, update", function(event){
 					var from = event.previousIndex;
 					if(from !== undefined && rows[from]){
 						// remove from old slot
@@ -367,7 +367,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 					}
 				}),
 
-				collection.on("trackedadd, trackedupdate", function(event){
+				collection.on("add, update", function(event){
 					var to = event.index, nextNode;
 
 					function advanceNext() {
@@ -417,7 +417,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 				}),
 
 				// TODO: Should the event names be the same as the store CRUD method names?
-				collection.on("trackedadd, trackedremove, trackedupdate", function(event){
+				collection.on("add, remove, update", function(event){
 					var from = event.previousIndex || Infinity,
 						to = event.index || Infinity,
 						adjustAtIndex = Math.min(from, to);
