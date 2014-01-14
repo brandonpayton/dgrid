@@ -143,10 +143,8 @@ function(declare, lang, Deferred, listen, aspect, put){
 			if(this.collection){ this._lastCollection = null; }
 			this.inherited(arguments);
 		
-			// TODO: Talk with Kris about expected sort API. Use this workaround for now.
-			var sort = this.sort[0];
-			if(sort){
-				this.collection && this.collection.sort(sort.attribute, sort.descending);
+			if(this.sort){
+				this.collection && this.collection.sort(this.sort);
 			}
 		},
 		
