@@ -37,22 +37,13 @@ function(declare, lang, Deferred, listen, aspect, put){
 
 		rows: null,
 		
-		// query: Object
-		//		Specifies query parameter(s) to pass to store.query calls.
-		query: null,
-		
-		// queryOptions: Object
-		//		Specifies additional query options to mix in when calling store.query;
-		//		sort, start, and count are already handled.
-		queryOptions: null,
-		
 		// getBeforePut: boolean
 		//		If true, a get request will be performed to the store before each put
 		//		as a baseline when saving; otherwise, existing row data will be used.
 		getBeforePut: true,
 		
 		// noDataMessage: String
-		//		Message to be displayed when no results exist for a query, whether at
+		//		Message to be displayed when no results exist for a collection, whether at
 		//		the time of the initial query or upon subsequent observed changes.
 		//		Defined by _StoreMixin, but to be implemented by subclasses.
 		noDataMessage: "",
@@ -98,7 +89,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 		
 		_setCollection: function(collection){
 			// summary:
-			//		Assigns a new store (and optionally query/queryOptions) to the list,
+			//		Assigns a new collection to the list,
 			//		and tells it to refresh.
 			
 			// Remove observer and existing rows so any sub-row observers will be cleaned up

@@ -78,7 +78,7 @@ function tree(column){
 			colSelector = ".dgrid-content .dgrid-column-" + column.id,
 			listeners = []; // to be removed when this column is destroyed
 
-		if(!grid.store){
+		if(!grid.collection){
 			throw new Error("dgrid tree column plugin requires a store to operate.");
 		}
 		
@@ -91,7 +91,7 @@ function tree(column){
 			column.expandOn || ".dgrid-expando-icon:click," + colSelector + ":dblclick," + colSelector + ":keydown",
 			function(event){
 				var row = grid.row(event);	
-				if((!grid.store.mayHaveChildren || grid.store.mayHaveChildren(row.data)) &&
+				if((!grid.collection.mayHaveChildren || grid.collection.mayHaveChildren(row.data)) &&
 						(event.type != "keydown" || event.keyCode == 32) &&
 						!(event.type == "dblclick" && clicked && clicked.count > 1 &&
 							row.id == clicked.id && event.target.className.indexOf("dgrid-expando-icon") > -1)){
@@ -211,7 +211,10 @@ function tree(column){
 					container = rowElement.connected = put('div.dgrid-tree-container');//put(rowElement, '+...
 					preloadNode = target.preloadNode = put(rowElement, '+', container, 'div.dgrid-preload');
 					var query = function(options){
-						var childCollection = grid.store.getChildren(row.data, options);
+						var childCollection = grid.collection.getChildren(row.data);
+						if(grid.sort){
+							childCollection = childCollection.sort(grid.sort);
+						}
 						if(childCollection.track){
 							options.rows = [];
 							childCollection = childCollection.track();
@@ -306,13 +309,13 @@ function tree(column){
 		
 		var grid = column.grid,
 			level = Number(options && options.queryLevel) + 1,
-			mayHaveChildren = !grid.store.mayHaveChildren || grid.store.mayHaveChildren(object),
+			mayHaveChildren = !grid.collection.mayHaveChildren || grid.collection.mayHaveChildren(object),
 			parentId = options.parentId,
 			expando, node;
 		
 		level = currentLevel = isNaN(level) ? 0 : level;
 		expando = column.renderExpando(level, mayHaveChildren,
-			grid._expanded[(parentId ? parentId + "-" : "") + grid.store.getIdentity(object)], object);
+			grid._expanded[(parentId ? parentId + "-" : "") + grid.collection.getIdentity(object)], object);
 		expando.level = level;
 		expando.mayHaveChildren = mayHaveChildren;
 		

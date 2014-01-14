@@ -325,8 +325,8 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 
 			this.inherited(arguments);
 
-			if(!this.store){
-				console.warn("Pagination requires a store to operate.");
+			if(!this.collection){
+				console.warn("Pagination requires a collection to operate.");
 				return;
 			}
 
@@ -434,7 +434,7 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 				grid._isLoading = true;
 
 				// Run new query and pass it into renderQueryResults
-				results = grid.store.query(grid.query, options);
+				results = grid.collection.range(start, start + count);
 
 				Deferred.when(grid.renderQueryResults(results, null, options), function(rows){
 					cleanupLoading(grid);
