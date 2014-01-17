@@ -522,7 +522,6 @@ return declare([List, _StoreMixin], {
 				// Keep _trackError-wrapped results separate, since if results is a
 				// promise, it will lose QueryResults functions when chained by `when`
 				var results = preload.query(options),
-					// TODO: Is there any need for trackedResults now?
 					trackedResults = grid._trackError(function(){ return results; });
 				
 				if(trackedResults === undefined){

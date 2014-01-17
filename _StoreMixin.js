@@ -93,6 +93,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 			//		and tells it to refresh.
 			
 			// Remove observer and existing rows so any sub-row observers will be cleaned up
+			// TODO: declare _observerHandle on the prototype
 			if(this._observerHandle){
 				this._observerHandle.remove();
 				this._observerHandle = this.rows = null;
@@ -106,7 +107,6 @@ function(declare, lang, Deferred, listen, aspect, put){
 				this.rows = [];
 			
 				// TODO: How is the total number of items tracked?
-				// TODO: Should total include or consider the number of visible child nodes?
 				this._observerHandle = this._observeCollection(this.collection, this.contentNode, this.rows);
 			}else{
 				this.collection = collection;
@@ -116,7 +116,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 			
 			// If we have new sort criteria, pass them through the sort setter
 			// (which call refresh in itself).  Otherwise, just refresh.
-			// TODO: Are there any legitimate cases where this.sort will be falsy and you want to set it?
+			// TODO: Are there any cases where this.sort will be truthy but we don't to set it?
 			if(this.sort){
 				this.set('sort', this.sort);
 			}else{
@@ -390,8 +390,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 						}else{
 							// There are no rows.  Allow for subclasses to insert new rows somewhere other than
 							// at the end of the parent node.
-							// TODO: This seems generally useful. Why not move _getFirstRowSibling to List?
-							nextNode = /*self._getFirstRowSibling &&*/ self._getFirstRowSibling(container);
+							nextNode = self._getFirstRowSibling && self._getFirstRowSibling(container);
 						}
 						// Make sure we don't trip over a stale reference to a
 						// node that was removed, or try to place a node before
