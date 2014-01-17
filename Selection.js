@@ -328,36 +328,31 @@ return declare(null, {
 			});
 		}
 		
-		// Update aspects if there is a store change
-		if(this._setStore){
-			aspect.after(this, "_setStore", function(){
-				grid._updateDeselectionAspect();
+		// Update aspects if there is a collection change
+		if(this._setCollection){
+			aspect.before(this, "_setCollection", function(collection){
+				grid._updateDeselectionAspect(collection);
 			});
 		}
 		this._updateDeselectionAspect();
 	},
 	
-	_updateDeselectionAspect: function(){
+	_updateDeselectionAspect: function(collection){
 		// summary:
 		//		Hooks up logic to handle deselection of removed items.
-		//		Aspects to an observable store's notify method if applicable,
+		//		Aspects to an observable collection's notify method if applicable,
 		//		or to the list/grid's removeRow method otherwise.
 		
 		var self = this,
-			store = this.store,
-			beforeSignal,
-			afterSignal;
+			signals = [];
 
-		function ifSelected(object, idToUpdate, methodName){
+		function ifSelected(rowArg, methodName){
 			// Calls a method if the row corresponding to the object is selected.
-			var id = idToUpdate || (object && object[self.idProperty || "id"]);
-			if(id != null){
-				var row = self.row(id),
-					selection = row && self.selection[row.id];
-				// Is the row currently in the selection list.
-				if(selection){
-					self[methodName](row, null, selection);
-				}
+			var row = self.row(rowArg),
+				selection = row && self.selection[row.id];
+			// Is the row currently in the selection list.
+			if(selection){
+				self[methodName](row);
 			}
 		}
 		
@@ -366,41 +361,50 @@ return declare(null, {
 			this._removeDeselectSignals();
 		}
 
-		// Is there currently an observable store?
-		if(store && store.notify){
-			beforeSignal = aspect.before(store, "notify", function(object, idToUpdate){
-				if(!object){
-					// Call deselect on the row if the object is being removed.  This allows the
-					// deselect event to reference the row element while it still exists in the DOM.
-					ifSelected(object, idToUpdate, "deselect");
-				}
-			});
-			afterSignal = aspect.after(store, "notify", function(object, idToUpdate){
-				// When List updates an item, the row element is removed and a new one inserted.
-				// If at this point the object is still in grid.selection, then call select on the row so the
-				// element's CSS is updated.  If the object was removed then the aspect-before has already deselected it.
-				ifSelected(object, idToUpdate, "select");
-			}, true);
-			
-			this._removeDeselectSignals = function(){
-				beforeSignal.remove();
-				afterSignal.remove();
-			};
+		// Is there currently an observable collection?
+		if(collection && collection.track){
+			signals.push(
+				aspect.before(this, "_observeCollection", function(collection){
+					signals.push(
+						collection.on("remove", function(event){
+							if(typeof event.index === "undefined"){
+								// Call deselect on the row if the object is being removed.  This allows the
+								// deselect event to reference the row element while it still exists in the DOM.
+								ifSelected(event.id, "deselect");
+							}
+						})
+					);
+				}),
+				aspect.after(this, "insertRow", function(rowElement){
+					// When List updates an item, the row element is removed and a new one inserted.
+					// If at this point the object is still in grid.selection, then call select on the row so the
+					// element's CSS is updated.  If the object was removed then the aspect-before has already deselected it.
+					ifSelected(rowElement, "select");
+					return rowElement;
+				})
+			);
 		}else{
-			beforeSignal = aspect.before(this, "removeRow", function(rowElement, justCleanup){
-				var row;
-				if(!justCleanup){
-					row = this.row(rowElement);
-					// if it is a real row removal for a selected item, deselect it
-					if(row && (row.id in this.selection)){
-						this.deselect(row);
+			// TODO: Clear selection map for _setCollection as well?
+			// TODO: It is strange this is happening before _setCollection given that it will operate on the rows removed by _setCollection
+			signals.push(
+				aspect.before(this, "removeRow", function(rowElement, justCleanup){
+					var row;
+					if(!justCleanup){
+						row = this.row(rowElement);
+						// if it is a real row removal for a selected item, deselect it
+						if(row && (row.id in this.selection)){
+							this.deselect(row);
+						}
 					}
-				}
-			});
-			this._removeDeselectSignals = function(){
-				beforeSignal.remove();
-			};
+				})
+			);
 		}
+
+		this._removeDeselectSignals = function(){
+			while(signals.length > 0){
+				signals.pop().remove();
+			}
+		};
 	},
 	
 	allowSelect: function(row){

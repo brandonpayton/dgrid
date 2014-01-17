@@ -6,8 +6,8 @@ define([
 	"dojo/_base/lang",
 	"dojo/json",
 	"dojo/dom-class",
-	"dojo/store/Memory",
-	"dojo/store/Observable",
+	"dstore/Memory",
+	"dstore/Observable",
 	"dgrid/Grid",
 	"dgrid/OnDemandGrid",
 	"dgrid/Selection",
@@ -21,7 +21,8 @@ define([
 			CellSelection: CellSelection
 		},
 		notificationTests = {},
-		grid;
+		grid,
+		ObservableMemory = declare([ Memory, Observable ]);
 
 	function _createTestData(size){
 		var data = [],
@@ -60,13 +61,13 @@ define([
 	arrayUtil.forEach(["Selection", "CellSelection"], function(name){
 		var SelectionMixin = mixins[name];
 		notificationTests[name + " + update"] = function(){
-			var store = Observable(new Memory({
+			var store = new ObservableMemory({
 					data: _createTestData()
-				}));
+				});
 
 			grid = new (declare([OnDemandGrid, SelectionMixin]))({
 				columns: getColumns(),
-				store: store,
+				collection: store,
 				sort: "id"
 			});
 
@@ -169,12 +170,12 @@ define([
 
 		notificationTests[name + " + update + store + paging"] = function(){
 			// Create a selection, trigger paging, notify
-			var store = Observable(new Memory({
+			var store = ObservableMemory({
 					data: _createTestData(100)
-				}));
+				});
 
 			grid = new (declare([Grid, SelectionMixin, Pagination]))({
-				store: store,
+				collection: store,
 				columns: getColumns()
 			});
 
@@ -255,13 +256,13 @@ define([
 
 		notificationTests[name + " events + store"] = function(){
 			// Create and remove selections, watch for events
-			var store = Observable(new Memory({
+			var store = new ObservableMemory({
 					data: _createTestData()
-				}));
+				});
 
 			grid = new (declare([OnDemandGrid, SelectionMixin]))({
 				columns: getColumns(),
-				store: store,
+				collection: store,
 				sort: "id"
 			});
 
@@ -309,10 +310,10 @@ define([
 			// Run the event tests
 			testEvents();
 			// Change the store
-			store = Observable(new Memory({
+			store = new ObservableMemory({
 				data: _createTestData()
-			}));
-			grid.set("store", store);
+			});
+			grid.set("collection", store);
 			// Run the tests again
 			testEvents();
 
@@ -400,15 +401,15 @@ define([
 
 		notificationTests[name + " events + store + remove"] = function(){
 			// Create selections, remove data, watch for events
-			var store = Observable(new Memory({
+			var store = new ObservableMemory({
 					data: _createTestData()
-				})),
+				}),
 				selectEventFired,
 				deselectEventFired;
 
 			grid = new (declare([OnDemandGrid, SelectionMixin]))({
 				columns: getColumns(),
-				store: store,
+				collection: store,
 				sort: "id"
 			});
 
@@ -448,10 +449,10 @@ define([
 			// Test the events
 			testEvents();
 			// Change the store
-			store = Observable(new Memory({
+			store = new ObservableMemory({
 				data: _createTestData()
-			}));
-			grid.set("store", store);
+			});
+			grid.set("collection", store);
 			// Test the events again
 			testEvents();
 
