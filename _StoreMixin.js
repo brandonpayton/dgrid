@@ -260,6 +260,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 			this.refresh();
 		},
 		
+		// TODO: Add unit test for _trackError
 		_trackError: function(func){
 			// summary:
 			//		Utility function to handle emitting of error events.
@@ -272,19 +273,21 @@ function(declare, lang, Deferred, listen, aspect, put){
 			// tags:
 			//		protected
 			
-			var result;
-			
 			if(typeof func == "string"){ func = lang.hitch(this, func); }
 			
+			var dfd = new Deferred();
 			try{
-				result = func();
+				Deferred.when(func(), dfd.resolve, dfd.reject);
 			}catch(err){
 				// report sync error
-				emitError.call(this, err);
+				dfd.reject(err);
 			}
 			
-			// wrap in when call to handle reporting of potential async error
-			return Deferred.when(result, noop, lang.hitch(this, emitError));
+			var self = this;
+			return dfd.then(null, function(err){
+				emitError.call(self, err);
+				throw err;
+			});
 		},
 		
 		removeRow: function(rowElement, justCleanup){
@@ -314,7 +317,8 @@ function(declare, lang, Deferred, listen, aspect, put){
 				container;
 			
 			// Render the results, asynchronously or synchronously
-			return Deferred.when(results.fetch(), function(resolvedResults){
+			var fetch = lang.hitch(results, "fetch");
+			return this._trackError(fetch).then(function(resolvedResults){
 				var resolvedRows,
 					i;
 					

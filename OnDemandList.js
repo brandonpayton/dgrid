@@ -128,37 +128,21 @@ return declare([List, _StoreMixin], {
 			innerNode = put(loadingNode, "div.dgrid-below");
 		innerNode.innerHTML = this.loadingMessage;
 
-		function errback(err) {
-			// Used as errback for when calls;
-			// remove the loadingNode and re-throw if an error was passed
-			put(loadingNode, "!");
-			
-			if(err){
-				if(self._refreshDeferred){
-					self._refreshDeferred.reject(err);
-					delete self._refreshDeferred;
-				}
-				throw err;
-			}
-		}
-
 		// Establish query options, mixing in our own.
 		// (The getter returns a delegated object, so simply using mixin is safe.)
 		options = lang.mixin(options,
 			{ start: 0, count: this.minRowsPerPage },
 			"level" in query ? { queryLevel: query.level } : null);
 		
-		// Protect the query within a _trackError call, but return the QueryResults
-		this._trackError(function(){ return results = query(options); });
+		// Protect the query within a _trackError call, but return the resulting collection
+		return this._trackError(
+			function(){ return query(options); }
+		).then(function(resolvedCollection){
+			results = resolvedCollection;
 		
-		if(typeof results === "undefined"){
-			// Synchronous error occurred (but was caught by _trackError)
-			errback();
-			return;
-		}
-		
-		// Render the result set
-		Deferred.when(self.renderQueryResults(results, preloadNode, options), function(trs){
+			// Render the result set
+			return self.renderQueryResults(results, preloadNode, options);
+		}).then(function(trs){
 			var total = typeof results.total === "undefined" ?
 				results.length : results.total;
 			return Deferred.when(total, function(total){
@@ -216,10 +200,20 @@ return declare([List, _StoreMixin], {
 				}
 				
 				return trs;
-			}, errback);
-		}, errback);
+			});
+		}, function (err) {
+			// Used as errback for when calls;
+			// remove the loadingNode and re-throw if an error was passed
+			put(loadingNode, "!");
 		
-		return results;
+			if(err){
+				if(self._refreshDeferred){
+					self._refreshDeferred.reject(err);
+					delete self._refreshDeferred;
+				}
+				throw err;
+			}
+		});
 	},
 	
 	refresh: function(options){
@@ -233,7 +227,7 @@ return declare([List, _StoreMixin], {
 		
 		var self = this,
 			keep = (options && options.keepScrollPosition),
-			dfd, results;
+			dfd;
 		
 		// Fall back to instance property if option is not defined
 		if(typeof keep === "undefined"){ keep = this.keepScrollPosition; }
@@ -247,13 +241,9 @@ return declare([List, _StoreMixin], {
 			dfd = this._refreshDeferred = new Deferred();
 			
 			// renderQuery calls _trackError internally
-			results = self.renderQuery(function(queryOptions){
+			self.renderQuery(function(queryOptions){
 				return self.collection.range(queryOptions.start, queryOptions.start + queryOptions.count);
 			});
-			if(typeof results === "undefined"){
-				// Synchronous error occurred; reject the refresh promise.
-				dfd.reject();
-			}
 			
 			// Internally, _refreshDeferred will always be resolved with an object
 			// containing `results` (QueryResults) and `rows` (the rendered rows);
@@ -519,20 +509,17 @@ return declare([List, _StoreMixin], {
 				loadingNode.count = count;
 				
 				// Query now to fill in these rows.
-				// Keep _trackError-wrapped results separate, since if results is a
-				// promise, it will lose QueryResults functions when chained by `when`
-				var results = preload.query(options),
-					trackedResults = grid._trackError(function(){ return results; });
-				
-				if(trackedResults === undefined){
-					// Sync query failed
-					put(loadingNode, "!");
-					return;
-				}
+				grid._trackError(
+					function(){ return preload.query(options); }
+				).then(
+					// Use function to isolate the variables in case we make multiple requests
+					// (which can happen if we need to render on both sides of an island of already-rendered rows)
+					lang.hitch(this, handleRenderedResults, loadingNode, scrollNode, below, keepScrollTo)
+				);
 
-				// Isolate the variables in case we make multiple requests
-				// (which can happen if we need to render on both sides of an island of already-rendered rows)
-				(function(loadingNode, scrollNode, below, keepScrollTo, results){
+				preload = preload.previous;
+
+				function handleRenderedResults(loadingNode, scrollNode, below, keepScrollTo, results){
 					lastRows = Deferred.when(grid.renderQueryResults(results, loadingNode, options), function(rows){
 						lastResults = results;
 						
@@ -577,8 +564,7 @@ return declare([List, _StoreMixin], {
 						put(loadingNode, "!");
 						throw e;
 					});
-				}).call(this, loadingNode, scrollNode, below, keepScrollTo, results);
-				preload = preload.previous;
+				}
 			}
 		}
 		

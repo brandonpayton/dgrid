@@ -390,10 +390,9 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 		gotoPage: function(page, focusLink){
 			// summary:
 			//		Loads the given page.  Note that page numbers start at 1.
-			var grid = this,
-				dfd = new Deferred();
+			var grid = this;
 
-			var result = this._trackError(function(){
+			return this._trackError(function(){
 				var count = grid.rowsPerPage,
 					start = (page - 1) * count,
 					options = {
@@ -428,7 +427,8 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 				// Run new query and pass it into renderQueryResults
 				results = grid.collection.range(start, start + count);
 
-				Deferred.when(grid.renderQueryResults(results, null, options), function(rows){
+				var promise = Deferred.when(grid.renderQueryResults(results, null, options));
+				promise.then(function(rows){
 					cleanupLoading(grid);
 					// Reset scroll Y-position now that new page is loaded.
 					grid.scrollTo({ y: 0 });
@@ -464,20 +464,12 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 						grid.resize();
 					}
 
-					dfd.resolve(results);
+					return results;
 				}, function(error){
 					cleanupLoading(grid);
-					dfd.reject(error);
 				});
-
-				return dfd.promise;
+				return promise;
 			});
-
-			if (!result) {
-				// A synchronous error occurred; reject the promise.
-				dfd.reject();
-			}
-			return dfd.promise;
 		}
 	});
 });
