@@ -362,7 +362,7 @@ return declare(null, {
 		}
 
 		// Is there currently an observable collection?
-		if(collection && collection.track){
+		if(collection && collection.track && this._observeCollection){
 			signals.push(
 				aspect.before(this, "_observeCollection", function(collection){
 					signals.push(
@@ -375,17 +375,20 @@ return declare(null, {
 						})
 					);
 				}),
-				aspect.after(this, "insertRow", function(rowElement){
-					// When List updates an item, the row element is removed and a new one inserted.
-					// If at this point the object is still in grid.selection, then call select on the row so the
-					// element's CSS is updated.  If the object was removed then the aspect-before has already deselected it.
-					ifSelected(rowElement, "select");
-					return rowElement;
-				})
+				aspect.after(this, "_observeCollection", function(collection){
+					signals.push(
+						collection.on("update", function(event){
+							if(typeof event.index !== "undefined"){
+								// When List updates an item, the row element is removed and a new one inserted.
+								// If at this point the object is still in grid.selection,
+								// then call select on the row so the element's CSS is updated.
+								ifSelected(collection.getIdentity(event.target), "select");
+							}
+						})
+					);
+				}, true)
 			);
 		}else{
-			// TODO: Clear selection map for _setCollection as well?
-			// TODO: It is strange this is happening before _setCollection given that it will operate on the rows removed by _setCollection
 			signals.push(
 				aspect.before(this, "removeRow", function(rowElement, justCleanup){
 					var row;
