@@ -79,7 +79,7 @@ function tree(column){
 			listeners = []; // to be removed when this column is destroyed
 
 		if(!grid.collection){
-			throw new Error("dgrid tree column plugin requires a store to operate.");
+			throw new Error("dgrid tree column plugin requires a collection to operate.");
 		}
 		
 		if (!column.renderExpando){
