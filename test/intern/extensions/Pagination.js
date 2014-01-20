@@ -8,9 +8,10 @@ define([
 	"put-selector/put",
 	"dgrid/Grid",
 	"dgrid/extensions/Pagination",
-	"dojo/domReady!",
-	"dgrid/test/data/base"
-], function(test, assert, declare, on, query, string, put, Grid, Pagination){
+	"dgrid/test/data/createSyncStore",
+	"dgrid/test/data/genericData",
+	"dojo/domReady!"
+], function(test, assert, declare, on, query, string, put, Grid, Pagination, createSyncStore, genericData){
 	var grid,
 		handles = [],
 		PaginationGrid = declare([Grid, Pagination]);
@@ -24,10 +25,14 @@ define([
 		};
 	}
 
+	function createTestStore(){
+		return createSyncStore({ data: genericData });
+	}
+
 	test.suite("Pagination", function(){
 		test.before(function(){
 			grid = new PaginationGrid({
-				store: testStore,
+				collection: createTestStore(),
 				columns: getColumns()
 			});
 			document.body.appendChild(grid.domNode);
@@ -74,7 +79,7 @@ define([
 
 		test.test("pageSizeOptions + unique rowsPerPage during creation", function(){
 			grid = new PaginationGrid({
-				store: testStore,
+				collection: createTestStore(),
 				columns: getColumns(),
 				// Purposely set pageSizeOptions out of order to test setter
 				pageSizeOptions: [25, 15, 5],
@@ -101,7 +106,7 @@ define([
 
 		test.test("pageSizeOptions added after creation", function(){
 			grid = new PaginationGrid({
-				store: testStore,
+				collection: createTestStore(),
 				columns: getColumns(),
 				rowsPerPage: 10
 			});
@@ -127,7 +132,7 @@ define([
 	test.suite("Pagination size selector", function(){
 		test.before(function(){
 			grid = new PaginationGrid({
-				store: testStore,
+				collection: createTestStore(),
 				columns: getColumns(),
 				pageSizeOptions: [5, 10, 15]
 			});

@@ -6,8 +6,8 @@ define([
 	"dgrid/editor",
 	"dijit/registry",
 	"dijit/form/TextBox",
-	"dgrid/test/data/base"
-], function (test, assert, List, Grid, editor, registry, TextBox) {
+	"dgrid/test/data/orderedData"
+], function (test, assert, List, Grid, editor, registry, TextBox, orderedData) {
 
 	test.suite("createDestroy", function(){
 		// Tests
@@ -43,10 +43,10 @@ define([
 			});
 			document.body.appendChild(grid.domNode);
 			grid.startup();
-			grid.renderArray(testOrderedData);
+			grid.renderArray(orderedData.items);
 
 			// check the registry
-			assert.strictEqual(testOrderedData.length + 1, registry.length,
+			assert.strictEqual(orderedData.items.length + 1, registry.length,
 				"dijit registry has 1 entry per row plus 1 shared editor widget");
 
 			// kill and check the registry again

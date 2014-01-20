@@ -8,14 +8,16 @@ define([
 	"dojo/on",
 	"dojo/query",
 	"put-selector/put",
-	"dgrid/test/data/base"
-], function(test, assert, OnDemandList, OnDemandGrid, Keyboard, declare, on, query, put){
+	"dgrid/test/data/createSyncStore",
+	"dgrid/test/data/genericData"
+], function(test, assert, OnDemandList, OnDemandGrid, Keyboard, declare, on, query, put, createSyncStore, genericData){
 	var handles = [],
 		columns = {
 			col1: "Column 1",
 			col3: "Column 3",
 			col5: "Column 5"
 		},
+		testStore = createSyncStore({ data: genericData }),
 		item = testStore.get(1),
 		grid;
 
@@ -100,7 +102,7 @@ define([
 			"focus(id) call focused a row");
 
 		elementId = element.id;
-		grid.store.put(item);
+		grid.collection.put(item);
 		assert.notStrictEqual(element, document.activeElement,
 			"A different DOM element is focused after updating the item");
 		assert.strictEqual(elementId, document.activeElement.id,
@@ -121,7 +123,7 @@ define([
 			"focus(id) call focused a row");
 
 		nextElement = element.nextSibling;
-		grid.store.remove(1);
+		grid.collection.remove(1);
 
 		// The logic responsible for moving to the next row runs on next turn,
 		// since it operates as a fallback that is run only if a replacement
@@ -151,7 +153,7 @@ define([
 			grid = new (declare([OnDemandGrid, Keyboard]))({
 				columns: columns,
 				sort: "id",
-				store: testStore
+				collection: testStore
 			});
 			document.body.appendChild(grid.domNode);
 			grid.startup();
@@ -260,7 +262,7 @@ define([
 				"focus(id) call focused a cell");
 
 			elementId = element.id;
-			grid.store.put(item);
+			grid.collection.put(item);
 			assert.notStrictEqual(element, document.activeElement,
 				"A different DOM element is focused after updating the item");
 			assert.strictEqual(grid.cell(1, "col1").element, document.activeElement,
@@ -281,7 +283,7 @@ define([
 				"focus(id) call focused a cell");
 
 			nextElement = grid.cell(2, "col1").element;
-			grid.store.remove(1);
+			grid.collection.remove(1);
 
 			// The logic responsible for moving to the next row runs on next turn,
 			// since it operates as a fallback that is run only if a replacement
@@ -302,7 +304,7 @@ define([
 				cellNavigation: false,
 				columns: columns,
 				sort: "id",
-				store: testStore
+				collection: testStore
 			});
 			document.body.appendChild(grid.domNode);
 			grid.startup();
@@ -315,7 +317,7 @@ define([
 		test.before(function(){
 			grid = new (declare([OnDemandList, Keyboard]))({
 				sort: "id",
-				store: testStore,
+				collection: testStore,
 				renderRow: function(item){ return put("div", item.col5); }
 			});
 			document.body.appendChild(grid.domNode);

@@ -9,8 +9,7 @@ define([
 	"dojo/dom-class",
 	"put-selector/put",
 	"dojo/dom-construct",
-	"dojo/text!../resources/setClass.html",
-	"dgrid/test/data/base"
+	"dojo/text!../resources/setClass.html"
 ], function (test, assert, List, Grid, GridFromHtml, arrayUtil, parser, domClass, put, domConstruct, gridTemplate) {
 
 	test.suite("setClass", function(){

@@ -5,8 +5,8 @@ define([
 	"dojo/query",
 	"dgrid/Grid",
 	"dgrid/ColumnSet",
-	"dgrid/test/data/base"
-], function(test, assert, declare, query, Grid, ColumnSet){
+	"dgrid/test/data/orderedData"
+], function(test, assert, declare, query, Grid, ColumnSet, orderedData){
 
 	var grid;
 
@@ -60,7 +60,7 @@ define([
 			});
 			document.body.appendChild(grid.domNode);
 			grid.startup();
-			grid.renderArray(testOrderedData);
+			grid.renderArray(orderedData.items);
 			runClassNameTests();
 		});
 	});
@@ -95,7 +95,7 @@ define([
 			});
 			document.body.appendChild(grid.domNode);
 			grid.startup();
-			grid.renderArray(testOrderedData);
+			grid.renderArray(orderedData.items);
 			runClassNameTests();
 		});
 	});
