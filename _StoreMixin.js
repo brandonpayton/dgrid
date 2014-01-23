@@ -284,10 +284,10 @@ function(declare, lang, Deferred, listen, aspect, put){
 			}
 			
 			var self = this;
-			return dfd.then(null, function(err){
+			dfd.then(null, function(err){
 				emitError.call(self, err);
-				throw err;
 			});
+			return dfd.promise;
 		},
 		
 		removeRow: function(rowElement, justCleanup){
@@ -408,7 +408,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 						// TODO: What to do about this? Is this necessary?
 						//parentNode = (beforeNode && beforeNode.parentNode) ||
 						//	(nextNode && nextNode.parentNode) || self.contentNode;
-						// TODO: What do we need from options?
+						// TODO: `options` is likely needed here for `tree` to function properly
 						row = self.insertRow(event.target, container, nextNode, to, /*options*/ {});
 						self.highlightRow(row);
 						
@@ -421,8 +421,8 @@ function(declare, lang, Deferred, listen, aspect, put){
 
 				// TODO: Should the event names be the same as the store CRUD method names?
 				collection.on("add, remove, update", function(event){
-					var from = event.previousIndex || Infinity,
-						to = event.index || Infinity,
+					var from = (typeof event.previousIndex !== "undefined") ? event.previousIndex : Infinity,
+						to = (typeof event.index !== "undefined") ? event.index : Infinity,
 						adjustAtIndex = Math.min(from, to);
 					from !== to && rows[adjustAtIndex] && self.adjustRowIndices(rows[adjustAtIndex]);
 				})

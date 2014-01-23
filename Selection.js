@@ -361,7 +361,6 @@ return declare(null, {
 			this._removeDeselectSignals();
 		}
 
-		// Is there currently an observable collection?
 		if(collection && collection.track && this._observeCollection){
 			signals.push(
 				aspect.before(this, "_observeCollection", function(collection){
@@ -404,9 +403,10 @@ return declare(null, {
 		}
 
 		this._removeDeselectSignals = function(){
-			while(signals.length > 0){
-				signals.pop().remove();
+			for(var i = signals.length; i--;){
+				signals[i].remove();
 			}
+			signals = [];
 		};
 	},
 	

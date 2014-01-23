@@ -427,8 +427,7 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 				// Run new query and pass it into renderQueryResults
 				results = grid.collection.range(start, start + count);
 
-				var promise = Deferred.when(grid.renderQueryResults(results, null, options));
-				promise.then(function(rows){
+				return Deferred.when(grid.renderQueryResults(results, null, options)).then(function(rows){
 					cleanupLoading(grid);
 					// Reset scroll Y-position now that new page is loaded.
 					grid.scrollTo({ y: 0 });
@@ -467,8 +466,8 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 					return results;
 				}, function(error){
 					cleanupLoading(grid);
+					throw error;
 				});
-				return promise;
 			});
 		}
 	});
