@@ -81,7 +81,7 @@
 					window.grid1 = new DnDGrid({
 						bufferRows: 5,
 						farOffRemoval: 400,
-						store: store = createOrderedStore(orderedData, { idProperty: "id" }),
+						collection: store = createOrderedStore(orderedData, { idProperty: "id" }),
 						columns: [
 							{label:"Name", field:"name", sortable: false},
 							{label:"Description", field:"description", sortable: false}
@@ -91,7 +91,7 @@
 						}
 					}, "grid1");
 					window.grid2 = new DnDGrid({
-						store: createOrderedStore([]),
+						collection: createOrderedStore([]),
 						columns: [
 							{label:"Name", field:"name", sortable: false}
 						]
@@ -197,7 +197,7 @@
 					
 					window.grid3 = new SharedDnDGrid({
 						dndSourceType: "dgrid-row-swap",
-						store: sharedStore,
+						collection: sharedStore,
 						columns: [
 							{label:"Name", field:"name", sortable: false},
 							{label:"Description", field:"description", sortable: false}
@@ -206,7 +206,7 @@
 					window.grid4 = new SharedDnDGrid({
 						dndSourceType: "dgrid-row-swap", // same as grid3
 						addedSide: true, // flag to extension above
-						store: sharedStore,
+						collection: sharedStore,
 						columns: [
 							{label:"Name", field:"name", sortable: false},
 							{label:"Description", field:"description", sortable: false}

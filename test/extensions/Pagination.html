@@ -58,12 +58,19 @@
 			
 			require([skinDep, "dgrid/Grid", "dgrid/extensions/Pagination",
 					"dgrid/Selection", "dgrid/Keyboard", "dgrid/ColumnSet", "dgrid/GridFromHtml",
-					"dojo/_base/lang", "dojo/_base/declare", "dojo/on", "dojo/dom-construct",
-					"dojo/dom-form", "dgrid/test/data/errorStores", "dgrid/test/data/base", "dojo/domReady!"],
-				function(skinResource, Grid, Pagination, Selection, Keyboard, ColumnSet, GridFromHtml,
-						lang, declare, on, domConstruct, domForm, errorStores, testStore){
+					"dojo/_base/lang", "dojo/_base/declare", "dojo/on", "dojo/dom-construct", "dojo/dom-form", 
+					"dgrid/test/data/errorStores", "dgrid/test/data/testStore", 
+					"dgrid/test/data/createAsyncStore", "dgrid/test/data/genericData"
+					"dojo/domReady!"],
+				function(
+					skinResource, Grid, Pagination, Selection, Keyboard, ColumnSet, GridFromHtml,
+					lang, declare, on, domConstruct, domForm, errorStores, testStore, createAsyncStore, genericData
+				){
 					
 					window.errorStores = errorStores; // for easy access by button handlers
+					window.testStore = testStore;
+					window.testAsyncStore = createAsyncStore({ data: genericData });
+					window.emptyAsyncStore = createAsyncStore();
 					
 					var CustomGrid = declare([Grid, Keyboard, Selection, Pagination]);
 					
@@ -90,7 +97,7 @@
 					
 					function createGrid(args){
 						window.grid = new CustomGrid(lang.mixin({
-									store: testAsyncStore,
+									collection: testAsyncStore,
 									columns: getColumns(),
 									noDataMessage: "No results.",
 									loadingMessage: "Loading..."
