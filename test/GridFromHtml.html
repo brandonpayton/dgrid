@@ -67,32 +67,31 @@
 	
 
 			require(["dgrid/GridFromHtml", "dgrid/OnDemandList",
-				"dojo/store/Memory", "dojo/store/Observable",
-				"dojo/_base/declare", "dojo/parser",
-				"dgrid/test/data/base", "dojo/domReady!"],
-			function(GridFromHtml, OnDemandList, Memory, Observable, declare, parser){
+				"dojo/_base/declare", "dgrid/test/data/createSyncStore", "dgrid/test/data/orderedData",
+				"dojo/parser", "dojo/domReady!"],
+			function(GridFromHtml, OnDemandList, Memory, Observable, orderedData, declare, parser){
 				
 				window.gridFromHtmlLegacyFormatter = new GridFromHtml({},
 					"gridFromHtmlLegacyFormatter");
-				gridFromHtmlLegacyFormatter.renderArray(testOrderedData);
+				gridFromHtmlLegacyFormatter.renderArray(orderedData);
 				
 				window.gridFromHtmlLegacyGet = new GridFromHtml({},
 					"gridFromHtmlLegacyGet");
-				gridFromHtmlLegacyGet.renderArray(testOrderedData);
+				gridFromHtmlLegacyGet.renderArray(orderedData);
 				
 				window.gridFromHtmlNew = new GridFromHtml({},
 					"gridFromHtmlNew");
-				gridFromHtmlNew.renderArray(testOrderedData);
+				gridFromHtmlNew.renderArray(orderedData);
 				
 				window.gridFromHtmlTestProps = new GridFromHtml({},
 					"gridFromHtmlTestProps");
-				gridFromHtmlTestProps.renderArray(testOrderedData);
+				gridFromHtmlTestProps.renderArray(orderedData);
 				
 				// Need to expose GridFromHtml as a global for parser to find.
 				// Mix in OnDemandList and create a store, since otherwise there's not
 				// much of a way to add data.
 				window.dgrid = { GridFromHtml: declare([GridFromHtml, OnDemandList]) };
-				store = Observable(new Memory({data: testOrderedData}));
+				store = createSyncStore({data: orderedData});
 				parser.parse();
 			});
 			

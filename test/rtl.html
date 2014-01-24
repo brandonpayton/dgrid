@@ -51,10 +51,16 @@
 					"dojo/_base/declare", "dojo/on", "dojo/data/ObjectStore",
 					"dijit/form/CheckBox", "dijit/form/TimeTextBox",
 					"dijit/form/Select", "dijit/form/FilteringSelect",
-					"dgrid/extensions/Pagination", "dgrid/test/data/base", "dojo/domReady!", "xstyle/css!../css/dgrid_rtl.css"], 
+					"dgrid/extensions/Pagination", "dgrid/test/data/testStore",
+					"dgrid/test/data/createSyncStore", "dgrid/test/data/typesData", "dgrid/test/data/stateData",
+					"dgrid/test/data/createAsyncHierarchicalStore",
+					"dgrid/test/data/hierarchicalCountryData",
+					"dojo/domReady!", "xstyle/css!../css/dgrid_rtl.css"], 
 				function(Grid, OnDemandGrid, Selection, Keyboard, tree, editor, lang, declare,
 						 on, ObjectStore, CheckBox, TimeTextBox, Select,
-						 FilteringSelect, Pagination, testStore){
+						 FilteringSelect, Pagination, testStore, createSyncStore, typesData, stateData,
+						 createAsyncHierarchicalStore, hierarchicalCountryData
+					){
 					var columns = [
 						{label: 'Column 1', field: 'col1'},
 						{label: 'Column 2', field: 'col2', sortable: false},
@@ -65,12 +71,12 @@
 					var StandardGrid = declare([OnDemandGrid, Selection, Keyboard]);
 
 					window.grid = new StandardGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns)
 					}, "grid");
 					
 					window.scrollgrid = new StandardGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns)
 					}, "scrollgrid");
 					
@@ -83,7 +89,7 @@
 					];
 					
 					window.tree = new StandardGrid({
-						store: testCountryStore,
+						collection: testCountryStore,
 						columns: columnsTree
 					}, "tree");
 					
@@ -96,14 +102,15 @@
 					};
 
 					window.headerless = new StandardGrid({
-						store: testStore,
+						collection: testStore,
 						columns: columnsHeaderless,
 						showHeader: false
 						
 					}, "headerless");
 						
 					stateStore = new ObjectStore({
-						objectStore:testStateStore,
+							// TODO: Fix
+					objectcollection: createSyncStore({ data: stateData }), 
 						labelProperty: "name"
 					});
 
@@ -140,18 +147,18 @@
 								]
 							}
 						}, Select, "dblclick"),
-						editor({label: "Select Store", field: "state", editorArgs: {store: stateStore, maxHeight: 150, style: "width:120px;"}}, Select, "click"),
-						editor({label: "FilteringSelect Store", field: "state2", editorArgs: {store: stateStore, maxHeight: 150, style: "width:120px;"}}, FilteringSelect)
+						editor({label: "Select Store", field: "state", editorArgs: {collection: stateStore, maxHeight: 150, style: "width:120px;"}}, Select, "click"),
+						editor({label: "FilteringSelect Store", field: "state2", editorArgs: {collection: stateStore, maxHeight: 150, style: "width:120px;"}}, FilteringSelect)
 					];
 					
 					window.moreeditors = new StandardGrid({
-						store: testTypesStore,
+						collection: createSyncStore({ data: typesData }),
 						columns: columnsEditor,
 						selectionMode: "none"
 					}, "moreeditors");
 
 					window.paginationGrid = new declare([Grid, Selection, Keyboard, Pagination])({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns)
 					}, 'pagination');
 					

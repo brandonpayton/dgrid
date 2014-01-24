@@ -23,8 +23,8 @@
 		<script>
 			require(["dojo/_base/lang", "dojo/_base/declare", "dojo/_base/array", "dojo/json", "dojo/on",
 					"dgrid/OnDemandGrid", "dgrid/editor","dgrid/Selection", "dgrid/CellSelection", "dgrid/Keyboard",
-					"dgrid/test/data/base", "dojo/domReady!"],
-				function(lang, declare, arrayUtil, json, on, Grid, editor, Selection, CellSelection, Keyboard, testStore){
+					"dgrid/test/data/createSyncStore", "dgrid/test/data/genericData", "dojo/domReady!"],
+				function(lang, declare, arrayUtil, json, on, Grid, editor, Selection, CellSelection, Keyboard, createSyncStore, genericData){
 					on(document.body, "dgrid-select,dgrid-deselect",
 						function(event){
 							var msg = (event.type == "dgrid-deselect" ? "de" : "") + "selected";
@@ -41,9 +41,10 @@
 					);
 					var SelectionGrid = declare([Grid, Selection, Keyboard]);
 					var CellSelectionGrid = declare([Grid, CellSelection, Keyboard]);
+					var testStore = createSyncStore({ data: genericData });
 
 					gridRowNavigation = new SelectionGrid({
-						store: testStore,
+						collection: testStore,
 						cellNavigation: false,
 						columns: {
 							col1: 'Column 1',
@@ -61,21 +62,21 @@
 						col4: 'Column 4'
 					};
 					gridCellNavigation = new CellSelectionGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns2)
 					}, "grid-cell-navigation");
 					gridCellNavigationSingle = new CellSelectionGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns2),
 						selectionMode: "single"
 					}, "grid-cell-navigation-single");
 					gridCellNavigationMultiple = new CellSelectionGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns2),
 						selectionMode: "multiple"
 					}, "grid-cell-navigation-multiple");
 					gridCellNavigationNone = new CellSelectionGrid({
-						store: testStore,
+						collection: testStore,
 						columns: lang.clone(columns2),
 						selectionMode: "none",
 						allowSelectAll: true
@@ -83,7 +84,7 @@
 					
 					// cell navigation + row selection
 					gridMixed = new SelectionGrid({
-						store: testStore,
+						collection: testStore,
 						columns: { // same as columns in very first grid
 							col1: 'Column 1',
 							col2: {label: 'Column 2', sortable: false},

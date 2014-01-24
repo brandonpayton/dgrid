@@ -52,8 +52,8 @@ define({
 	loader: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [
-			{ name: 'dojo', location: 'dojo' },
-			{ name: 'dijit', location: 'dijit' },
+			{ name: 'dojo', location: './dtk/dojo' },
+			{ name: 'dijit', location: './dtk/dijit' },
 			{ name: 'dgrid', location: 'dgrid' },
 			{ name: 'put-selector', location: 'put-selector' },
 			{ name: 'xstyle', location: 'xstyle' }
@@ -64,7 +64,7 @@ define({
 	excludeInstrumentation: /^dojox?|^dijit|^xstyle|^put-selector|\/test\/|\/nls\//,
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'dgrid/test/intern/all' ],
+	//suites: [ 'dgrid/test/intern/all' ],
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
 	functionalSuites: [ 'dgrid/test/intern/functional' ]
