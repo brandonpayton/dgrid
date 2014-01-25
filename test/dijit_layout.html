@@ -45,17 +45,19 @@
 				"dijit/Dialog",
 				"dojo/_base/declare",
 				"dojo/parser",
+				"dgrid/test/data/testStore",
 				// widgets only used declaratively
 				"dijit/layout/BorderContainer",
 				"dijit/layout/TabContainer",
 				"dijit/Toolbar",
 				"dijit/form/Button",
 				// non-returns
-				"dgrid/test/data/testStore",
 				"dojo/domReady!"
-			], function(Grid, DijitRegistry, Dialog, declare, parser){
+			], function(Grid, DijitRegistry, Dialog, declare, parser, testStore){
 			
 				var CustomGrid = declare([Grid, DijitRegistry]);
+
+				window.testStore = testStore;
 				
 				// Simply passing columns via data-dojo-props, don't want GridFromHtml
 				window.dgrid = { Grid: CustomGrid };

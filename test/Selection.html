@@ -23,8 +23,8 @@
 		<script>
 			require(["dojo/_base/lang", "dojo/_base/declare", "dojo/_base/array", "dojo/json", "dojo/on",
 					"dgrid/OnDemandGrid", "dgrid/editor","dgrid/Selection", "dgrid/CellSelection", "dgrid/Keyboard",
-					"dgrid/test/data/createSyncStore", "dgrid/test/data/genericData", "dojo/domReady!"],
-				function(lang, declare, arrayUtil, json, on, Grid, editor, Selection, CellSelection, Keyboard, createSyncStore, genericData){
+					"dgrid/test/data/testStore", "dojo/domReady!"],
+				function(lang, declare, arrayUtil, json, on, Grid, editor, Selection, CellSelection, Keyboard, testStore){
 					on(document.body, "dgrid-select,dgrid-deselect",
 						function(event){
 							var msg = (event.type == "dgrid-deselect" ? "de" : "") + "selected";
@@ -41,7 +41,6 @@
 					);
 					var SelectionGrid = declare([Grid, Selection, Keyboard]);
 					var CellSelectionGrid = declare([Grid, CellSelection, Keyboard]);
-					var testStore = createSyncStore({ data: genericData });
 
 					gridRowNavigation = new SelectionGrid({
 						collection: testStore,

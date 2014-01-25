@@ -1,8 +1,10 @@
 define([
-	"./createSyncStore"
-], function(createSyncStore){
+	"./createSyncStore",
+	"./stateData",
+	"dojo/_base/array"
+], function(createSyncStore, stateData, arrayUtil){
 
-	var topHeavyData = arrayUtil.map(testStateStore.data, function (state) {
+	var topHeavyData = arrayUtil.map(stateData, function (state) {
 		return {
 			abbreviation: state.abbreviation,
 			name: state.name,

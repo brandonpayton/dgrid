@@ -50,7 +50,7 @@
 					}
 
 					var StandardGrid = declare([Grid, Keyboard, Selection]);
-					var testCountryStore = createAsyncHierarchicalStore(hierarchicalCountryData);
+					var testCountryStore = createAsyncHierarchicalStore({ data: hierarchicalCountryData });
 					
 					var treeGrid = window.treeGrid = new StandardGrid({
 						collection: testCountryStore,

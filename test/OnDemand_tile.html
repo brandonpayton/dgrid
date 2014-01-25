@@ -47,7 +47,7 @@
 				document.getElementById("logRendered").onclick = logRendered;
 				
 				window.list = new OnDemandList({
-					store: store,
+					collection: store,
 					farOffRemoval: 500,
 					renderRow: function(object){
 						return put("span", object.id);

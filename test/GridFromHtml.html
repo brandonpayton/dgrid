@@ -69,23 +69,23 @@
 			require(["dgrid/GridFromHtml", "dgrid/OnDemandList",
 				"dojo/_base/declare", "dgrid/test/data/createSyncStore", "dgrid/test/data/orderedData",
 				"dojo/parser", "dojo/domReady!"],
-			function(GridFromHtml, OnDemandList, Memory, Observable, orderedData, declare, parser){
+			function(GridFromHtml, OnDemandList, declare, createSyncStore, orderedData, parser){
 				
 				window.gridFromHtmlLegacyFormatter = new GridFromHtml({},
 					"gridFromHtmlLegacyFormatter");
-				gridFromHtmlLegacyFormatter.renderArray(orderedData);
+				gridFromHtmlLegacyFormatter.renderArray(orderedData.items);
 				
 				window.gridFromHtmlLegacyGet = new GridFromHtml({},
 					"gridFromHtmlLegacyGet");
-				gridFromHtmlLegacyGet.renderArray(orderedData);
+				gridFromHtmlLegacyGet.renderArray(orderedData.items);
 				
 				window.gridFromHtmlNew = new GridFromHtml({},
 					"gridFromHtmlNew");
-				gridFromHtmlNew.renderArray(orderedData);
+				gridFromHtmlNew.renderArray(orderedData.items);
 				
 				window.gridFromHtmlTestProps = new GridFromHtml({},
 					"gridFromHtmlTestProps");
-				gridFromHtmlTestProps.renderArray(orderedData);
+				gridFromHtmlTestProps.renderArray(orderedData.items);
 				
 				// Need to expose GridFromHtml as a global for parser to find.
 				// Mix in OnDemandList and create a store, since otherwise there's not
@@ -137,7 +137,7 @@
 		
 		<h2>2a: same as 1a, parsed from declarative markup (using a store)</h2>
 		<table id="gridDeclarativeLegacyFormatter" data-dojo-id="gridDeclarativeLegacyFormatter"
-			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="store: store">
+			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="collection: store">
 			<thead>
 				<tr>
 					<th data-dgrid-column="{field:'_item', sortable:false, formatter:testFormatter}">Step</th>
@@ -146,7 +146,7 @@
 		</table>
 		<h2>2b: same as 1b, parsed from declarative markup (using a store)</h2>
 		<table id="gridDeclarativeLegacyGet" data-dojo-id="gridDeclarativeLegacyGet"
-			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="store: store">
+			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="collection: store">
 			<tbody>
 				<tr>
 					<th data-dgrid-column="{field:'order', get:testGet}">Step</th>
@@ -157,7 +157,7 @@
 		</table>
 		<h2>2c: same as 1c, parsed from declarative markup (using a store)</h2>
 		<table id="gridDeclarativeNew" data-dojo-id="gridDeclarativeNew"
-			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="store: store">
+			data-dojo-type="dgrid.GridFromHtml" data-dojo-props="collection: store">
 			<tr>
 				<th data-dgrid-column="{field:'order',
 					renderCell:testRenderCell, renderHeaderCell:testRenderHeaderCell}">Step</th>

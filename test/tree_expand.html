@@ -50,12 +50,12 @@
 
 					var StandardGrid = declare([Grid, Keyboard, Selection]);
 					
-					arrayUtil.forEach([{
+					arrayUtil.forEach([/*{
 						id: "asyncGrid",
 						collection: createAsyncHierarchicalStore({ data: hierarchicalCountryData })
-					}, {
+					},*/ {
 						id: "syncGrid",
-						collection: createSyncHierarchicalSTore({ data: hierarchicalCountryData })
+						collection: createSyncHierarchicalStore({ data: hierarchicalCountryData })
 					}], function(info){
 						var grid = window[info.id] = new StandardGrid({
 							collection: info.collection,

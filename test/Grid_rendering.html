@@ -116,29 +116,29 @@
 				window.gridLegacyFormatter = new Grid({
 					columns: columnsLegacyFormatter
 				}, "gridLegacyFormatter");
-				gridLegacyFormatter.renderArray(testOrderedData);
+				gridLegacyFormatter.renderArray(orderedData.items);
 				
 				window.gridLegacyFormatterScope = new Grid({
 					columns: columnsLegacyFormatterScope,
 					formatterScope: testFormatterScope
 				}, "gridLegacyFormatterScope");
-				gridLegacyFormatterScope.renderArray(testOrderedData);
+				gridLegacyFormatterScope.renderArray(orderedData.items);
 				
 				
 				window.gridLegacyGet = new Grid({
 					columns: columnsLegacyGet
 				}, "gridLegacyGet");
-				gridLegacyGet.renderArray(testOrderedData);
+				gridLegacyGet.renderArray(orderedData.items);
 				
 				window.gridNew = new Grid({
 					columns: lang.clone(columnsNew)
 				}, "gridNew");
-				gridNew.renderArray(testOrderedData);
+				gridNew.renderArray(orderedData.items);
 
 				
 				// also, need a store, since there's currently no way to effectively
 				// invoke renderArray from HTML.
-				store = createSyncStore({data: testOrderedData});
+				store = createSyncStore({data: orderedData.items});
 				parser.parse();
 				
 				// Test 2x: testing dgrid w/o srcNodeRef, or w/ srcNodeRef w/o id

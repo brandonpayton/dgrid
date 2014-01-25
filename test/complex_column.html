@@ -41,11 +41,11 @@
 			require([
 				"dgrid/OnDemandGrid", "dgrid/GridWithColumnSetsFromHtml", "dgrid/ColumnSet", "dgrid/Selection",
 				"dgrid/Keyboard", "dojo/_base/declare", "dojo/on", "dojo/parser",
-				"dgrid/test/data/createSyncStore", "dgrid/test/data/genericData", "dgrid/test/data/DeferredWrapper",
+				"dgrid/test/data/testStore", "dgrid/test/data/DeferredWrapper",
 				"dojo/domReady!"
 			], function(OnDemandGrid, GridFromHtml, ColumnSet, Selection, Keyboard,
-					declare, on, parser, createSyncStore, genericData, DeferredWrapper){
-					var testStore = createSyncStore({ data: genericData });
+					declare, on, parser, testStore, DeferredWrapper){
+					window.testStore = testStore;
 					var columnSets1 = [
 							[
 								[{label: 'Column 1', field: 'col1'},
