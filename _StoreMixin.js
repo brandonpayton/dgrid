@@ -130,8 +130,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 
 				// If we have new sort criteria, pass them through the sort setter
 				// (which call refresh in itself).  Otherwise, just refresh.
-				// TODO: Are there any cases where this.sort will be truthy but we don't to set it?
-				if(this.sort){
+				if(this.sort && this.sort.length > 0){
 					this.set('sort', this.sort);
 				}else{
 					this.refresh();
@@ -275,7 +274,6 @@ function(declare, lang, Deferred, listen, aspect, put){
 			this.refresh();
 		},
 		
-		// TODO: Add unit test for _trackError
 		_trackError: function(func){
 			// summary:
 			//		Utility function to handle emitting of error events.
@@ -318,10 +316,9 @@ function(declare, lang, Deferred, listen, aspect, put){
 			return this.inherited(arguments);
 		},
 		
-		// TODO: We probably want to rename this to renderCollection
-		renderQueryResults: function(results, beforeNode, options){
+		renderCollection: function(collection, beforeNode, options){
 			// summary:
-			//		Renders objects from QueryResults as rows, before the given node.
+			//		Renders objects from a collection as rows, before the given node.
 			//		This will listen for changes in the collection if an observe method
 			//		is available (i.e. from an Observable data store).
 			
@@ -331,8 +328,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 				rows = options.rows || this._rows,
 				container;
 			
-			// Render the results, asynchronously or synchronously
-			var fetch = lang.hitch(results, "fetch");
+			var fetch = lang.hitch(collection, "fetch");
 			return this._trackError(fetch).then(function(resolvedResults){
 				var resolvedRows,
 					i;
@@ -351,10 +347,9 @@ function(declare, lang, Deferred, listen, aspect, put){
 					
 					delete self._lastCollection; // used only for non-store List/Grid
 				}else{
-					// TODO: _StoreMixin shouldn't have a concept of "out of view"
-
 					// Don't bother inserting; rows are already out of view
 					// or there were none to track
+					// TODO: Should _StoreMixin even have a concept of "out of view"? This seems like a design smell.
 					resolvedRows = [];
 				}
 				return resolvedRows;
