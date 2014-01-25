@@ -425,6 +425,8 @@ function(declare, lang, Deferred, listen, aspect, put){
 						to = (typeof event.index !== "undefined") ? event.index : Infinity,
 						adjustAtIndex = Math.min(from, to);
 					from !== to && rows[adjustAtIndex] && self.adjustRowIndices(rows[adjustAtIndex]);
+
+					self._onNotification(rows, event);
 				})
 			];
 
@@ -436,5 +438,12 @@ function(declare, lang, Deferred, listen, aspect, put){
 				}
 			};
 		},
+
+		// TODO: Document these arguments
+		_onNotification: function(rows, event){
+			// summary:
+			//		Protected method called whenever a store notification is observed.
+			//		Intended to be extended as necessary by mixins/extensions.
+		}
 	});
 });

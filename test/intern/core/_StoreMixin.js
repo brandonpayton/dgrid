@@ -68,55 +68,93 @@ define([
 		return item[this.field].toUpperCase();
 	}
 
-	test.suite("_StoreMixin#save / column.set tests", function(){
+	test.suite("_StoreMixin", function(){
 		var grid; // Reused for each test and common afterEach logic
 
 		test.afterEach(function(){
 			grid.destroy();
 		});
 
-		test.test("column.set in subRows", function(){
+		test.test("_onNotification", function(){
+			var store = createSyncStore({ data: genericData }),
+				notificationCount = 0,
+				lastNotificationEvent = null;
+
 			grid = new OnDemandGrid({
-				subRows: [
-					[
-						{ label: "Column 1", field: "col1", set: sampleSetMethod },
-						{ label: "Column 2", field: "col2", sortable: false },
-						{ label: "Column 1", field: "col1", rowSpan: 2 },
-						{ label: "Column 4", field: "col4", set: sampleSetMethod }
-					],
-					[
-						{ label: "Column 3", field: "col3", colSpan: 2, set: sampleSetMethod },
-						{ label: "Column 5", field: "col5" }
-					]
-				]
+				collection: store,
+				_onNotification: function(rows, event){
+					notificationCount++;
+					lastNotificationEvent = event;
+				}
 			});
-			testSetMethod(grid, this.async());
+
+			var item = store.get(1);
+			store.remove(item.id);
+			assert.equal(notificationCount, 1);
+			assert.isNotNull(lastNotificationEvent);
+			assert.equal(lastNotificationEvent.type, "remove");
+			assert.equal(lastNotificationEvent.id, item.id);
+
+			lastNotificationEvent = null;
+			store.add(item);
+			assert.equal(notificationCount, 2);
+			assert.isNotNull(lastNotificationEvent);
+			assert.equal(lastNotificationEvent.type, "add");
+			assert.equal(lastNotificationEvent.target, item);
+
+			item.col1 = "changed";
+			lastNotificationEvent = null;
+			store.put(item);
+			assert.equal(notificationCount, 3);
+			assert.isNotNull(lastNotificationEvent);
+			assert.equal(lastNotificationEvent.type, "update");
+			assert.equal(lastNotificationEvent.target, item);
 		});
 
-		test.test("column.set in columnSets", function(){
-			grid = new (declare([OnDemandGrid, ColumnSet]))({
-				columnSets: [
-					[
+		test.suite("_StoreMixin#save / column.set tests", function(){
+			test.test("column.set in subRows", function(){
+				grid = new OnDemandGrid({
+					subRows: [
 						[
 							{ label: "Column 1", field: "col1", set: sampleSetMethod },
-							{ label: "Column 2", field: "col2", sortable: false }
-						],
-						[
-							{label: "Column 3", field: "col3", colSpan: 2, set: sampleSetMethod }
-						]
-					],
-					[
-						[
+							{ label: "Column 2", field: "col2", sortable: false },
 							{ label: "Column 1", field: "col1", rowSpan: 2 },
 							{ label: "Column 4", field: "col4", set: sampleSetMethod }
 						],
 						[
+							{ label: "Column 3", field: "col3", colSpan: 2, set: sampleSetMethod },
 							{ label: "Column 5", field: "col5" }
 						]
 					]
-				]
+				});
+				testSetMethod(grid, this.async());
 			});
-			testSetMethod(grid, this.async());
+
+			test.test("column.set in columnSets", function(){
+				grid = new (declare([OnDemandGrid, ColumnSet]))({
+					columnSets: [
+						[
+							[
+								{ label: "Column 1", field: "col1", set: sampleSetMethod },
+								{ label: "Column 2", field: "col2", sortable: false }
+							],
+							[
+								{label: "Column 3", field: "col3", colSpan: 2, set: sampleSetMethod }
+							]
+						],
+						[
+							[
+								{ label: "Column 1", field: "col1", rowSpan: 2 },
+								{ label: "Column 4", field: "col4", set: sampleSetMethod }
+							],
+							[
+								{ label: "Column 5", field: "col5" }
+							]
+						]
+					]
+				});
+				testSetMethod(grid, this.async());
+			});
 		});
 	});
 });
