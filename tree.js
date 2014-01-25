@@ -218,7 +218,9 @@ function tree(column){
 						if(childCollection.track){
 							options.rows = [];
 							childCollection = childCollection.track();
-							container._observerHandle = grid._observeCollection(childCollection, container, options.rows);
+							container._observerHandle = grid._observeCollection(
+								childCollection, container, options.rows, options
+							);
 						}
 						return childCollection;
 					};
@@ -234,7 +236,6 @@ function tree(column){
 					}
 					Deferred.when(
 						grid.renderQuery ?
-							// TODO: Does trackError need to be applied here when renderQuery also uses trackError
 							grid._trackError(function(){
 								return grid.renderQuery(query, preloadNode, options);
 							}) :

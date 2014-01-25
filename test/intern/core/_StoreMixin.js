@@ -3,6 +3,7 @@ define([
 	"intern/chai!assert",
 	"dojo/_base/lang",
 	"dojo/_base/declare",
+	"dojo/Deferred",
 	// column.set can't be tested independently from a Grid,
 	// so we are testing through OnDemandGrid for now.
 	"dgrid/OnDemandGrid",
@@ -10,7 +11,7 @@ define([
 	"dgrid/test/data/createSyncStore",
 	"dgrid/test/data/genericData",
 	"dojo/domReady!"
-], function(test, assert, lang, declare, OnDemandGrid, ColumnSet, createSyncStore, genericData){
+], function(test, assert, lang, declare, Deferred, OnDemandGrid, ColumnSet, createSyncStore, genericData){
 
 	// Helper method used to set column set() methods for various grid compositions
 	function testSetMethod(grid, dfd){
@@ -75,7 +76,7 @@ define([
 			grid.destroy();
 		});
 
-		test.test("_onNotification", function(){
+		test.test("_StoreMixin#_onNotification", function(){
 			var store = createSyncStore({ data: genericData }),
 				notificationCount = 0,
 				lastNotificationEvent = null;
@@ -109,6 +110,58 @@ define([
 			assert.isNotNull(lastNotificationEvent);
 			assert.equal(lastNotificationEvent.type, "update");
 			assert.equal(lastNotificationEvent.target, item);
+		});
+
+		test.test("_StoreMixin#_trackError", function(){
+			grid = new OnDemandGrid();
+
+			function unexpectedSuccess(){ throw new Error("Unexpected resolution"); }
+
+			var emittedErrorCount = 0,
+				lastEmittedError;
+			grid.on("dgrid-error", function(event){
+				emittedErrorCount++;
+				lastEmittedError = event.error;
+			});
+
+			// sync value
+			var expectedValue = "expected";
+			return grid._trackError(function(){ return expectedValue}).then(function(actualValue){
+				assert.strictEqual(actualValue, expectedValue);
+			}).then(function(){
+				// async value
+				expectedValue = "expected-async";
+				return grid._trackError(function(){
+					var dfd = new Deferred();
+					dfd.resolve(expectedValue);
+					return dfd.promise;
+				});
+			}).then(function(actualValue){
+				assert.strictEqual(actualValue, expectedValue);
+			}).then(function(){
+				// sync error
+				assert.strictEqual(emittedErrorCount, 0);
+				expectedValue = "expected-error";
+				return grid._trackError(function(){
+					throw new Error(expectedValue);
+				});
+			}).then(unexpectedSuccess, function(err){
+				assert.strictEqual(err.message, expectedValue);
+				assert.strictEqual(emittedErrorCount, 1);
+				assert.strictEqual(lastEmittedError.message, expectedValue);
+			}).then(function(){
+				// async error
+				expectedValue = "expected-async-error";
+				return grid._trackError(function(){
+					var dfd = new Deferred();
+					dfd.reject(new Error(expectedValue));
+					return dfd.promise;
+				});
+			}).then(unexpectedSuccess, function(err){
+				assert.strictEqual(err.message, expectedValue);
+				assert.strictEqual(emittedErrorCount, 2);
+				assert.strictEqual(lastEmittedError.message, expectedValue);
+			});
 		});
 
 		test.suite("_StoreMixin#save / column.set tests", function(){

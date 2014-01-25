@@ -342,7 +342,7 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 		},
 
 		_onNotification: function(){
-			if(this.rows.length !== this._rowsOnPage){
+			if(this._rows.length !== this._rowsOnPage){
 				// Refresh the current page to maintain correct number of rows on page
 				this.gotoPage(this._currentPage);
 			}

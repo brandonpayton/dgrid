@@ -440,7 +440,7 @@ return declare([List, _StoreMixin], {
 
 				count = Math.ceil(count);
 				offset = Math.min(Math.floor(offset), preload.count - count);
-				var options = lang.mixin(grid.get("queryOptions"), preload.options);
+				var options = preload.options || {};
 				preload.count -= count;
 				var beforeNode = preloadNode,
 					keepScrollTo, queryRowsOverlap = grid.queryRowsOverlap,
