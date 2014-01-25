@@ -341,8 +341,8 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 			});
 		},
 
-		_onNotification: function(rows){
-			if(rows.length !== this._rowsOnPage){
+		_onNotification: function(){
+			if(this.rows.length !== this._rowsOnPage){
 				// Refresh the current page to maintain correct number of rows on page
 				this.gotoPage(this._currentPage);
 			}
