@@ -19,6 +19,7 @@ define([
 
 				return filteredCollection;
 			},
+			// TODO: Can we fix this? It isn't very generic.
 			mayHaveChildren: function(parent){
 				return parent.type != "city";
 			}
