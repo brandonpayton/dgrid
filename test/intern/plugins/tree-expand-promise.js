@@ -38,6 +38,8 @@ define([
 			AsyncTreeStore = declare(TreeStore, {
 				// TreeStore with an asynchronous fetch method.
 				fetch: function(){
+					// Setting dfd on the prototype because collection chaining means we can't set it on an instance.
+					// It isn't great, but in practice, it is not much different than before.
 					var dfd = AsyncTreeStore.prototype.dfd = new Deferred();
 					var results = AsyncTreeStore.prototype.results = this.inherited(arguments);
 					results.total = dfd.then(function(){
