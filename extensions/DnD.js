@@ -37,7 +37,7 @@ define([
 
 			var grid = this.grid;
 			// Extract item id from row node id (gridID-row-*).
-			return grid.store.get(node.id.slice(grid.id.length + 5));
+			return grid.collection.get(node.id.slice(grid.id.length + 5));
 		},
 		_legalMouseDown: function(evt){
 			// Fix _legalMouseDown to only allow starting drag from an item
@@ -51,7 +51,7 @@ define([
 			var targetSource = this,
 				targetRow = this._targetAnchor = this.targetAnchor, // save for Internal
 				grid = this.grid,
-				store = grid.store;
+				store = grid.collection;
 
 			if(!this.before && targetRow){
 				// target before next node if dropped within bottom half of this node
@@ -75,7 +75,7 @@ define([
 			});
 		},
 		onDropInternal: function(nodes, copy, targetItem){
-			var store = this.grid.store,
+			var store = this.grid.collection,
 				targetSource = this,
 				grid = this.grid,
 				anchor = targetSource._targetAnchor,
@@ -110,7 +110,7 @@ define([
 			// share the same store.  There may be more ideal implementations in the
 			// case of two grids using the same store (perhaps differentiated by
 			// query), dragging to each other.
-			var store = this.grid.store,
+			var store = this.grid.collection,
 				sourceGrid = sourceSource.grid;
 
 			// TODO: bail out if sourceSource.getObject isn't defined?
@@ -120,10 +120,10 @@ define([
 						if(sourceGrid){
 							// Remove original in the case of inter-grid move.
 							// (Also ensure dnd source is cleaned up properly)
-							Deferred.when(sourceGrid.store.getIdentity(object), function(id){
+							Deferred.when(sourceGrid.collection.getIdentity(object), function(id){
 								!i && sourceSource.selectNone(); // deselect all, one time
 								sourceSource.delItem(node.id);
-								sourceGrid.store.remove(id);
+								sourceGrid.collection.remove(id);
 							});
 						}else{
 							sourceSource.deleteSelectedNodes();
