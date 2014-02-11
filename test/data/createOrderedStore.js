@@ -32,7 +32,6 @@ define([
 		// Instantiate a Memory store modified to support ordering.
 
 		kwArgs = lang.mixin({
-			idProperty: "name",
 			// Memory's add does not need to be augmented since it calls put
 			copy: function(object, options){
 				// summary:
