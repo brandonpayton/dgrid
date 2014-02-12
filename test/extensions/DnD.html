@@ -175,7 +175,7 @@
 									object.added = grid.addedSide;
 									// If we wanted to support copy, we would probably want
 									// to check the copy flag and call copy instead of put here.
-									grid.store.put(object, { before: targetItem });
+									grid.collection.put(object, { before: targetItem });
 								});
 							});
 						}
