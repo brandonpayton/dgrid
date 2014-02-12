@@ -63,11 +63,12 @@ define([
 			return originalPut.call(this, object, options);
 		};
 
-		var originalFetch = store.fetch;
-		store.fetch = function(){
-			this.sort("order");
-			return originalFetch.call(this);
-		};
+		var sortedCollection = store.sort("order");
+		lang.mixin(store, {
+			sorted: sortedCollection.sorted,
+			queryer: sortedCollection.queryer,
+			data: sortedCollection.data
+		});
 
 		return store;
 	};
