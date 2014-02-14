@@ -7,10 +7,8 @@ if(isset($_GET["parent"])){
 }
 usleep(rand(0,500000));
 $range = "";
-if(isset($_SERVER["HTTP_RANGE"])){
-	$range = $_SERVER["HTTP_RANGE"];
-}else if(isset($_SERVER["HTTP_X_RANGE"])){
-	$range = $_SERVER["HTTP_X_RANGE"];
+if(isset($_GET["range"])){
+	$range = $_GET["range"];
 }
 if($range){
 	preg_match('/(\d+)-(\d+)/', $range, $matches);
