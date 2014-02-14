@@ -22,9 +22,9 @@ if($range){
 	$start = 0;
 	$end = 40;
 }
-header('Content-Range: ' . 'items '.$start.'-'.$end.'/'.$total);
+header('Content-Range: ' . 'items '.$start.'-'.($end-1).'/'.$total);
 echo '[';
-for ($i = $start; $i <= $end; $i++) {
+for ($i = $start; $i < $end; $i++) {
 	if($i != $start){
 		echo ',';
 	}
