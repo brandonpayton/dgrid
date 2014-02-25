@@ -3,10 +3,10 @@ function(Grid, declare, put){
 	// summary:
 	//		This module supports parsing grid structure information from an HTML table.
 	//		This module does NOT support ColumnSets; see GridWithColumnSetsFromHtml
-
+	
 	// name of data attribute to check for column properties
 	var bagName = "data-dgrid-column";
-
+	
 	function getSubRowsFromDom(domNode){
 		// summary:
 		//		generate columns from DOM. Should this be in here, or a separate module?
@@ -16,7 +16,7 @@ function(Grid, declare, put){
 			trslen = trs.length,
 			getCol = GridFromHtml.utils.getColumnFromCell,
 			rowColumns, tr, ths, thslen;
-
+		
 		for(var i = 0; i < trslen; i++){
 			rowColumns = [];
 			columns.push(rowColumns);
@@ -31,10 +31,10 @@ function(Grid, declare, put){
 			// grouping element (e.g. thead)
 			domNode.removeChild(tr.parentNode);
 		}
-
+		
 		return columns;
 	}
-
+	
 	var GridFromHtml = declare(Grid, {
 		configStructure: function(){
 			// summary:
@@ -45,7 +45,7 @@ function(Grid, declare, put){
 			}
 			return this.inherited(arguments);
 		},
-
+		
 		create: function(params, srcNodeRef){
 			// We need to replace srcNodeRef, presumably a table, with a div.
 			// (Otherwise we'll generate highly invalid markup, which IE doesn't like)
@@ -53,25 +53,25 @@ function(Grid, declare, put){
 				div = document.createElement("div"),
 				id = srcNodeRef.id,
 				style = srcNodeRef.getAttribute("style");
-
+			
 			// Copy some commonly-used attributes...
 			if(id){ this.id = id; } // will be propagated in List's create
 			div.className = srcNodeRef.className;
 			style && div.setAttribute("style", style);
-
+			
 			// replace srcNodeRef in DOM with the div
 			srcNodeRef.parentNode.replaceChild(div, srcNodeRef);
-
+			
 			(params = params || {}).srcNodeRef = srcNodeRef;
 			// call inherited with the new node
 			// (but configStructure will look at srcNodeRef)
 			this.inherited(arguments, [params, div]);
-
+			
 			// destroy srcNodeRef for good now that we're done with it
 			put(srcNodeRef, "!");
 		}
 	});
-
+	
 	// hang some utility functions, potentially useful for extensions
 	GridFromHtml.utils = {
 		// Functions for getting various types of values from HTML attributes
@@ -90,7 +90,7 @@ function(Grid, declare, put){
 			// used to pull properties out of bag e.g. "data-dgrid-column".
 			var obj, str = node.getAttribute(bagName);
 			if(!str){ return {}; } // no props bag specified!
-
+			
 			// Yes, eval is evil, but this is ultimately the same thing that
 			// dojo.parser does for objects.
 			try{
@@ -100,26 +100,26 @@ function(Grid, declare, put){
 			}
 			return obj;
 		},
-
+		
 		// Function for aggregating th attributes into column properties
 		getColumnFromCell: function(th){
 			var
 				getNum = GridFromHtml.utils.getNumFromAttr,
 				obj, tmp;
-
+			
 			// Look for properties in data attribute.
 			// It's imperative that we hold on to this object as returned, as the
 			// object may be augmented further by other sources,
 			// e.g. Grid adding the grid property to reference the instance.
 			obj = GridFromHtml.utils.getPropsFromNode(th);
-
+			
 			// inspect standard attributes, but data attribute takes precedence
 			obj.label = "label" in obj ? obj.label : th.innerHTML;
 			obj.field = obj.field || th.className || th.innerHTML;
 			if(!obj.className && th.className){ obj.className = th.className; }
 			if(!obj.rowSpan && (tmp = getNum(th, "rowspan"))){ obj.rowSpan = tmp; }
 			if(!obj.colSpan && (tmp = getNum(th, "colspan"))){ obj.colSpan = tmp; }
-
+			
 			return obj;
 		}
 	};

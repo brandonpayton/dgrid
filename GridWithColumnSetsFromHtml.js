@@ -3,11 +3,11 @@ function(GridFromHtml, ColumnSet, declare){
 	// summary:
 	//		This module augments GridFromHtml with additional support for interpreting
 	//		ColumnSets from colgroups in table markup.
-
+	
 	function getColumnSetsFromDom(domNode){
 		// summary:
 		//		Generates ColumnSets from DOM.
-
+		
 		var
 			columnsets = [], // to be pushed upon / returned
 			cgspans = [], // stores info on columnset sizes (colgroup span)
@@ -22,7 +22,7 @@ function(GridFromHtml, ColumnSet, declare){
 			currcol, // keeps track of what column we're at
 			currcg, // and which colgroup
 			groupColumns, tr, ths, i, j, tmp;
-
+		
 		function incCurrcol(amount){
 			// Check whether we've passed into the next colgroup within current row.
 			// (Used within th loop)
@@ -32,17 +32,17 @@ function(GridFromHtml, ColumnSet, declare){
 				// First, push info for the set we just finished:
 				// (i is still the active row index from the for loop)
 				columnsets[currcg][i] = groupColumns;
-
+				
 				// Now, time to move on to the next columnset for this row.
 				currcol -= tmp;
 				currcg++;
 				groupColumns = [];
 			}
 		}
-
+		
 		// no need for ColumnSet unless there's >1 colgroup
 		if(cglen < 2){ return false; }
-
+		
 		// read span from each colgroup (defaults to 1)
 		for(i = 0; i < cglen; i++){
 			// store number of cells this column spans
@@ -56,7 +56,7 @@ function(GridFromHtml, ColumnSet, declare){
 				rowspans[i][j] = 0;
 			}
 		}
-
+		
 		for(i = 0; i < trslen; i++){
 			currcol = currcg = 0;
 			groupColumns = [];
@@ -70,14 +70,14 @@ function(GridFromHtml, ColumnSet, declare){
 					// skip past this cell for now, and try again w/ updated currcg/col
 					incCurrcol(1);
 				}
-
+				
 				// store cell info
 				tmp = getCol(ths[j]);
 				groupColumns.push(tmp);
-
+				
 				// if this cell has rowspan, keep that in mind for future iterations
 				rowspans[currcg][currcol] = tmp.rowSpan ? tmp.rowSpan - 1 : 0;
-
+				
 				// increment currcol/currcg appropriately, accounting for cell colSpan
 				incCurrcol(tmp.colSpan || 1);
 			}
@@ -98,7 +98,7 @@ function(GridFromHtml, ColumnSet, declare){
 		configStructure: function(){
 			// summary:
 			//		Configure subRows based on HTML originally in srcNodeRef
-
+			
 			var tmp;
 			if(!this._checkedTrs){
 				tmp = getColumnSetsFromDom(this.srcNodeRef);

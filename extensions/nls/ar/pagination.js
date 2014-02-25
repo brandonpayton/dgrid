@@ -5,5 +5,5 @@ define({
 	gotoPrev: "السابق",
 	gotoLast: "الصفحة الأخيرة",
 	gotoPage: "صفحة",
-	jumpPage: "إذهب لصفحة "
+	jumpPage: "إذهب لصفحة "	
 });

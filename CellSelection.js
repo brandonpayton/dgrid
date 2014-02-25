@@ -11,12 +11,12 @@ return declare(Selection, {
 	// summary:
 	//		Add cell level selection capabilities to a grid. The grid will have a selection property and
 	//		fire "dgrid-select" and "dgrid-deselect" events.
-
+	
 	// ensure we don't select when an individual cell is not identifiable
 	selectionDelegate: ".dgrid-cell",
-
+	
 	_selectionTargetType: "cells",
-
+	
 	_select: function(cell, toCell, value){
 		var i, id;
 		if(typeof value === "undefined"){
@@ -59,7 +59,7 @@ return declare(Selection, {
 			previousRow = previousRow || {};
 			previousRow[cell.column.id] = value;
 			this.selection[rowId] = previousRow;
-
+			
 			// Check for all-false objects to see if it can be deleted.
 			// This prevents build-up of unnecessary iterations later.
 			var hasSelected = false;
@@ -70,7 +70,7 @@ return declare(Selection, {
 				}
 			}
 			if(!hasSelected){ delete this.selection[rowId]; }
-
+			
 			if(element){
 				// add or remove classes as appropriate
 				if(value){
@@ -86,7 +86,7 @@ return declare(Selection, {
 				if(!toCell.element){
 					toCell = this.cell(toCell);
 				}
-
+				
 				if(!toCell || !toCell.row){
 					this._lastSelected = element;
 					console.warn("The selection range has been reset because the " +
@@ -96,23 +96,23 @@ return declare(Selection, {
 						"in the DOM may impact performance.");
 					return;
 				}
-
+				
 				var toElement = toCell.element;
 				var fromElement = cell.element;
 				// find if it is earlier or later in the DOM
-				var traverser = (toElement && (toElement.compareDocumentPosition ?
+				var traverser = (toElement && (toElement.compareDocumentPosition ? 
 					toElement.compareDocumentPosition(fromElement) == 2 :
 					toElement.sourceIndex > fromElement.sourceIndex)) ? "nextSibling" : "previousSibling";
-				// now we determine which columns are in the range
+				// now we determine which columns are in the range 
 				var idFrom = cell.column.id, idTo = toCell.column.id, started, columnIds = [];
 				for(id in this.columns){
 					if(started){
-						columnIds.push(id);
+						columnIds.push(id);				
 					}
 					if(id == idFrom && (idFrom = columnIds) || // once found, we mark it off so we don't hit it again
 						id == idTo && (idTo = columnIds)){
 						columnIds.push(id);
-						if(started || // last id, we are done
+						if(started || // last id, we are done 
 							(idFrom == columnIds && id == idTo)){ // the ids are the same, we are done
 							break;
 						}
@@ -139,14 +139,14 @@ return declare(Selection, {
 	isSelected: function(object, columnId){
 		// summary:
 		//		Returns true if the indicated cell is selected.
-
+		
 		if(typeof object === "undefined" || object === null){
 			return false;
 		}
 		if(!object.element){
 			object = this.cell(object, columnId);
 		}
-
+		
 		// First check whether the given cell is indicated in the selection hash;
 		// failing that, check if allSelected is true (testing against the
 		// allowSelect method if possible)
