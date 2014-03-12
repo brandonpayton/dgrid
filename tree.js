@@ -211,6 +211,9 @@ function tree(column){
 						if(grid.sort){
 							childCollection = childCollection.sort(grid.sort);
 						}
+						if('start' in options){
+							childCollection = childCollection.range(options.start, options.start + options.count);
+						}
 						if(childCollection.track){
 							options.rows = [];
 							
