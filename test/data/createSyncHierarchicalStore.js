@@ -21,7 +21,7 @@ define([
 				return filteredCollection;
 			},
 			mayHaveChildren: function(object){
-				return !('mayHaveChildren' in object) || object.mayHaveChildren;
+				return object.hasChildren;
 			}
 		}, kwArgs);
 

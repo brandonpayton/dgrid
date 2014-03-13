@@ -48,9 +48,7 @@ define([
 	];
 
 	for(var i = 0; i < items.length; ++i){
-		if(items[i].type === 'city'){
-			items[i].mayHaveChildren = false;
-		}
+		items[i].hasChildren = items[i].type !== 'city';
 	}
 
 	return {
