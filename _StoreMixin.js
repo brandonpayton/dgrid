@@ -33,6 +33,9 @@ function(declare, lang, Deferred, listen, aspect, put){
 		//		to be fetched.
 		collection: null,
 
+		// _renderedCollection: Object
+		//		TODO: Document this and update the `collection` documentation
+
 		// _rows: Array
 		//		A sparse array of row nodes, used to maintain the grid in response to events from a tracked collection.
 		//		Each node's index corresponds to the index of its data object in the collection.
@@ -91,12 +94,12 @@ function(declare, lang, Deferred, listen, aspect, put){
 			// summary:
 			//		Assigns a new collection to the list,
 			//		and tells it to refresh.
-			
-			if(this.collection){
-				if(this.collection.tracking){
-					this.collection.tracking.remove();
+
+			if(this._renderedCollection){
+				if(this._renderedCollection.tracking){
+					this._renderedCollection.tracking.remove();
 				}
-			
+
 				// Remove observer and existing rows so any sub-row observers will be cleaned up
 				if(this._observerHandle){
 					this._observerHandle.remove();
@@ -108,19 +111,19 @@ function(declare, lang, Deferred, listen, aspect, put){
 			}
 			
 			if(collection){
+				var renderedCollection = this.collection = collection;
 				if(this.sort && this.sort.length > 0){
-					collection = collection.sort(this.sort);
+					renderedCollection = collection.sort(this.sort);
 				}
 
-				if(collection.track){
-					collection = this.collection = collection.track();
+				if(renderedCollection.track){
+					renderedCollection = renderedCollection.track();
 					this._rows = [];
 
-					this._observerHandle = this._observeCollection(collection, this.contentNode, this._rows);
-				}else{
-					this.collection = collection;
+					this._observerHandle = this._observeCollection(renderedCollection, this.contentNode, this._rows);
 				}
 
+				this._renderedCollection = renderedCollection;
 				this.refresh();
 			}
 		},
@@ -143,6 +146,7 @@ function(declare, lang, Deferred, listen, aspect, put){
 		insertRow: function(object, parent, beforeNode, i, options){
 			var store = this.collection,
 				dirty = this.dirty,
+				// TODO: What should happen if store doesn't exist?
 				id = store && store.getIdentity(object),
 				dirtyObj,
 				row;

@@ -134,6 +134,7 @@ return declare([List, _StoreMixin], {
 		
 		// Protect the query within a _trackError call, but return the resulting collection
 		return this._trackError(function(){
+			// TODO: What should this var be called now that we have a grid._renderedCollection property?
 			var renderedCollection = query(options);
 
 			// Render the result set
@@ -215,12 +216,12 @@ return declare([List, _StoreMixin], {
 		if(keep){ this._previousScrollPosition = this.getScrollPosition(); }
 		
 		this.inherited(arguments);
-		if(this.collection){
+		if(this._renderedCollection){
 			// render the query
 
 			// renderQuery calls _trackError internally
 			return this.renderQuery(function(queryOptions){
-				return self.collection.range(queryOptions.start, queryOptions.start + queryOptions.count);
+				return self._renderedCollection.range(queryOptions.start, queryOptions.start + queryOptions.count);
 			}).then(function(){
 				// Emit on a separate turn to enable event to be used consistently for
 				// initial render, regardless of whether the backing store is async
