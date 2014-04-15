@@ -29,12 +29,15 @@ function(declare, lang, Deferred, listen, aspect, put){
 	
 	return declare(null, {
 		// collection: Object
-		//		The object collection (implementing the dstore/api/Store API) from which data is
-		//		to be fetched.
+		//		The base object collection (implementing the dstore/api/Store API) before being sorted
+		//		or otherwise processed by the grid. Use it for general purpose store operations such as
+		//		`getIdentity` and `get`, `add`, `put`, and `remove`.
 		collection: null,
 
 		// _renderedCollection: Object
-		//		TODO: Document this and update the `collection` documentation
+		//		The object collection from which data is to be fetched. This is the sorted collection.
+		//		Use it when retrieving data to be rendered by the grid.
+		_renderedCollection: null,
 
 		// _rows: Array
 		//		A sparse array of row nodes, used to maintain the grid in response to events from a tracked collection.
