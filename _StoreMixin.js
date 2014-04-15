@@ -149,7 +149,6 @@ function(declare, lang, Deferred, listen, aspect, put){
 		insertRow: function(object, parent, beforeNode, i, options){
 			var store = this.collection,
 				dirty = this.dirty,
-				// TODO: What should happen if store doesn't exist?
 				id = store && store.getIdentity(object),
 				dirtyObj,
 				row;

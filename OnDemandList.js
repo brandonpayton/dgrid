@@ -134,13 +134,12 @@ return declare([List, _StoreMixin], {
 		
 		// Protect the query within a _trackError call, but return the resulting collection
 		return this._trackError(function(){
-			// TODO: What should this var be called now that we have a grid._renderedCollection property?
-			var renderedCollection = query(options);
+			var resultsCollection = query(options);
 
 			// Render the result set
-			return self.renderCollection(renderedCollection, preloadNode, options).then(function(trs){
-				var total = typeof renderedCollection.total === "undefined" ?
-					renderedCollection.length : renderedCollection.total;
+			return self.renderCollection(resultsCollection, preloadNode, options).then(function(trs){
+				var total = typeof resultsCollection.total === "undefined" ?
+					resultsCollection.length : resultsCollection.total;
 				return Deferred.when(total, function(total){
 					var trCount = trs.length,
 						parentNode = preloadNode.parentNode,
